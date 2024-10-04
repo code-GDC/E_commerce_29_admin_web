@@ -11,14 +11,9 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                     <Sidebar />
                 </aside>
                 {/* Main content with children */}
-                <section className="flex-1  bg-white h-screen ">
-                    <div className="h-full flex flex-col">
                         {/* Make children take full available space */}
-                        <div className="flex-1">
                             {children}
-                        </div>
-                    </div>
-                </section>
+                       
             </div>
             {/* Footer */}
             <footer className="bg-gray-500 text-center py-4 w-full">
