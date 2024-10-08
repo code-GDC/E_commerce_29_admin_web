@@ -51,7 +51,20 @@ export default function SalesData() {
         const response = await fetch(query);
         const data = await response.json();
 
+        console.log("API Response:", data);
+
         if (response.ok) {
+          const salesDataArray = Array(4).fill(0); // Default to 0 for all quarters
+
+  // Populate the salesDataArray based on the API response
+          data.sales.forEach((item: { quarter: string; sales: string }) => {
+            const quarterIndex = parseInt(item.quarter.replace('Q', '')) - 1; // Convert Q1, Q2, ... to 0, 1, ...
+            salesDataArray[quarterIndex] = parseInt(item.sales); // Ensure sales is a number
+              });
+          if (!data.sales || data.sales.length === 0) {
+            setError("No sales data available for the selected filters.");
+            return;
+          }
           const formattedData = {
             labels: ['Q1', 'Q2', 'Q3', 'Q4'], // Assuming sales data is per quarter
             datasets: [
@@ -60,6 +73,7 @@ export default function SalesData() {
                 backgroundColor: '#4ADE80',
                 borderColor: '#22C55E',
                 data: data.sales, // assuming 'data.sales' contains sales numbers
+                
               },
             ],
           };
