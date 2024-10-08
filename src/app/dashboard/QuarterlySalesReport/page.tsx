@@ -72,7 +72,7 @@ export default function SalesData() {
                 label: isAllProducts ? `All Products Sales in ${isAllTime ? "All Time" : selectedYear}` : `${selectedCategory} Sales in ${isAllTime ? "All Time" : selectedYear}`,
                 backgroundColor: '#4ADE80',
                 borderColor: '#22C55E',
-                data: data.sales, // assuming 'data.sales' contains sales numbers
+                data: salesDataArray,// assuming 'data.sales' contains sales numbers
                 
               },
             ],
