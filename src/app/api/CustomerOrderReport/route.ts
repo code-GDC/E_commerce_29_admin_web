@@ -1,65 +1,48 @@
-// src/app/api/most-orders.ts
 import { NextRequest, NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
 
-// Define the expected structure of category order data
-type CategoryOrderData = {
-  categoryName: string;
-  orderCount: number;
-};
-
-// Connect to the database
+// Database connection setup
 const connectToDatabase = async () => {
-  console.log('Connecting to the database...');
-  try {
-    const connection = await mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-      port: Number(process.env.MYSQL_PORT),
-    });
-    console.log('Database connected successfully');
-    return connection;
-  } catch (error) {
-    console.error('Database connection error:', (error as Error).message);
-    throw error; // Rethrow the error to be caught in the GET handler
-  }
+  return await mysql.createConnection({
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+    port: Number(process.env.MYSQL_PORT),
+  });
 };
 
-// API handler for getting most ordered product category
+// API handler function
 export async function GET(req: NextRequest) {
   try {
     const connection = await connectToDatabase();
 
+    // SQL query to get the required fields for the report
     const query = `
-      SELECT c.categoryName, COUNT(o.OrderID) AS orderCount
-      FROM category c
-      LEFT JOIN product p ON c.categoryID = p.categoryID
-      LEFT JOIN variant v ON p.productID = v.productID
-      LEFT JOIN orderitem o ON v.variantID = o.variantID
-      GROUP BY c.categoryID
-      ORDER BY orderCount DESC
-      LIMIT 1
+      SELECT 
+        o.OrderID, 
+        o.OrderDate, 
+        u.UserID, 
+        CONCAT(u.FirstName, ' ', u.LastName) AS CustomerName,
+        o.OrderTotal, 
+        o.PaymentMethod, 
+        o.DeliveryType 
+      FROM 
+        \`order\` o
+        LEFT JOIN user u ON o.UserID = u.UserID
+      ORDER BY 
+        o.OrderDate DESC
     `;
 
-    const [rows]: [CategoryOrderData[], any] = await connection.query(query) as [CategoryOrderData[], any];
-
-    const categoryOrderData: CategoryOrderData = {
-      categoryName: rows.length > 0 ? rows[0].categoryName : 'No category found',
-      orderCount: rows.length > 0 ? rows[0].orderCount : 0,
-    };
+    // Execute the query
+    const [rows] = await connection.execute(query);
 
     await connection.end();
 
-    return NextResponse.json({ connectionStatus: 'Connected', categoryOrderData });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error('Database error:', error.message);
-      return NextResponse.json({ connectionStatus: 'Disconnected', error: 'Database query failed: ' + error.message }, { status: 500 });
-    } else {
-      console.error('An unknown error occurred:', error);
-      return NextResponse.json({ connectionStatus: 'Disconnected', error: 'An unknown error occurred' }, { status: 500 });
-    }
+    // Return the data as JSON
+    return NextResponse.json({ orders: rows });
+  } catch (error: any) {
+    console.error('Database error:', error);
+    return NextResponse.json({ error: 'Database query failed: ' + error.message }, { status: 500 });
   }
 }

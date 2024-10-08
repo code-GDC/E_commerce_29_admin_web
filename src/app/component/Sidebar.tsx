@@ -57,7 +57,7 @@ const Sidebar = () => {
                         </Link>
                     </li>
                     <li className="flex justify-center">
-                        <Link href="/dashboard/customer-orders">
+                        <Link href="/dashboard/CustomerOrderReport">
                             <div className="bg-gray-700 p-4 rounded-lg shadow hover:bg-gray-600 transition-colors flex items-center justify-center">
                                 <span className="font-medium text-center" style={{ fontFamily: 'Poppins, sans-serif' }}>
                                     Customer-Order Report
