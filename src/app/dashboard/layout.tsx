@@ -5,13 +5,11 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     return (
         <div className="flex-1 min-h-screen">
             {/* Main content area */}
-            <div className="flex flex-1">
+            <div className="flex">
                 {/* Sidebar */}
-                <aside className="w-1/4 bg-gray-200 h-screen">
+                <aside className=" w-1/5  bg-gray-800 h-screen">
                     <Sidebar />
                 </aside>
-                {/* Main content with children */}
-                        {/* Make children take full available space */}
                             {children}
                        
             </div>
