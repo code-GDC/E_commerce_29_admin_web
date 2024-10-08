@@ -29,44 +29,48 @@ export async function GET(req: NextRequest) {
 
     // SQL Query depending on filters
     let query = `
-      SELECT 
-        QUARTER(s.sale_date) as quarter, 
-        SUM(s.sales_amount) as sales 
-      FROM sales s
-      JOIN products p ON s.product_id = p.product_id
-    `;
-    
+  SELECT 
+    QUARTER(o.OrderDate) AS quarter, 
+    SUM(oi.Quantity) AS sales 
+  FROM 
+    \`order\` o 
+    LEFT JOIN orderitem oi USING(OrderID) 
+    LEFT JOIN variant v USING(VariantID) 
+    LEFT JOIN product p USING(ProductID) 
+`;
+
+   
     let queryParams: (string | number)[] = [];
 
     // Modify the query based on selected filters
     if (year && category) {
-      query += ` WHERE YEAR(s.sale_date) = ? AND p.category = ?`;
+      query += ` WHERE YEAR(o.OrderDate) = ? AND ecommercedb.GetMainCategory(p.CategoryID) COLLATE utf8mb4_unicode_ci = ?`;
       queryParams.push(year, category);
     } else if (year && !category) {
-      query += ` WHERE YEAR(s.sale_date) = ?`;
+      query += ` WHERE YEAR(o.OrderDate) = ?`;
       queryParams.push(year);
     } else if (!year && category) {
-      query += ` WHERE p.category = ?`;
+      query += ` WHERE ecommercedb.GetMainCategory(p.CategoryID) COLLATE utf8mb4_unicode_ci= ?`;
       queryParams.push(category);
     }
 
-    query += ` GROUP BY QUARTER(s.sale_date) ORDER BY QUARTER(s.sale_date)`;
+    query += ` GROUP BY QUARTER(o.OrderDate) ORDER BY QUARTER(o.OrderDate)`;
 
-    // Execute the query
+    // Execute the query with the appropriate parameters
     const [rows] = await connection.execute(query, queryParams);
 
-    // Format the data
+    // Format the data, ensuring both quarter and sales are returned
     const salesData: SalesData[] = (rows as any[]).map(row => ({
-      quarter: `Q${row.quarter}`,
-      sales: row.sales,
+      quarter: `Q${row.quarter}`,  // Map quarter from 1-4 to Q1, Q2, etc.
+      sales: row.sales,            // Map sales values from the query result
     }));
 
     await connection.end();
 
-    // Return the fetched data
-    return NextResponse.json({ sales: salesData.map(data => data.sales) });
+    // Return both quarters and sales as part of the response for clarity
+    return NextResponse.json({ sales: salesData });
   } catch (error: any) {
-    console.error('Database error:', error.message);
+    console.error('Database error:', error);  // Log the full error for debugging
     return NextResponse.json({ error: 'Database query failed: ' + error.message }, { status: 500 });
   }
 }
