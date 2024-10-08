@@ -1,4 +1,3 @@
-// src/app/api/most-orders.ts
 import { NextRequest, NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
 
@@ -52,7 +51,7 @@ export async function GET(req: NextRequest) {
 
     await connection.end();
 
-    return NextResponse.json({ connectionStatus: 'Connected', categoryOrderData });
+    return NextResponse.json({ connectionStatus: 'Connected', data: categoryOrderData }); // Return data correctly
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error('Database error:', error.message);
