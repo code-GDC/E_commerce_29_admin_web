@@ -26,7 +26,7 @@ const connectToDatabase = async () => {
   }
 };
 
-// API handler for getting most ordered product category
+// API handler for getting the top 10 most ordered product categories
 export async function GET(req: NextRequest) {
   try {
     const connection = await connectToDatabase();
@@ -39,19 +39,14 @@ export async function GET(req: NextRequest) {
       LEFT JOIN orderitem o ON v.variantID = o.variantID
       GROUP BY c.categoryID
       ORDER BY orderCount DESC
-      LIMIT 1
+      LIMIT 10;
     `;
 
     const [rows]: [CategoryOrderData[], any] = await connection.query(query) as [CategoryOrderData[], any];
 
-    const categoryOrderData: CategoryOrderData = {
-      categoryName: rows.length > 0 ? rows[0].categoryName : 'No category found',
-      orderCount: rows.length > 0 ? rows[0].orderCount : 0,
-    };
-
     await connection.end();
 
-    return NextResponse.json({ connectionStatus: 'Connected', data: categoryOrderData }); // Return data correctly
+    return NextResponse.json({ connectionStatus: 'Connected', data: rows }); // Return array of categories
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error('Database error:', error.message);
