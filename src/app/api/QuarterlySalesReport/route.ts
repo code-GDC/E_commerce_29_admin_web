@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
 
-// Type definitions for expected response
 type SalesData = {
   quarter: string;
   sales: number;
@@ -27,40 +26,14 @@ export async function GET(req: NextRequest) {
   try {
     const connection = await connectToDatabase();
 
-    // SQL Query depending on filters
-    let query = `
-  SELECT 
-    QUARTER(o.OrderDate) AS quarter, 
-    SUM(oi.Quantity) AS sales 
-  FROM 
-    \`order\` o 
-    LEFT JOIN orderitem oi USING(OrderID) 
-    LEFT JOIN variant v USING(VariantID) 
-    LEFT JOIN product p USING(ProductID) 
-`;
+    // Call stored procedure with year and category parameters
+    const [rows] = await connection.execute(
+      `CALL GetSalesByQuarter(?, ?)`,
+      [year || null, category || null]
+    );
 
-   
-    let queryParams: (string | number)[] = [];
-
-    // Modify the query based on selected filters
-    if (year && category) {
-      query += ` WHERE YEAR(o.OrderDate) = ? AND ecommercedb.GetMainCategory(p.CategoryID) COLLATE utf8mb4_unicode_ci = ?`;
-      queryParams.push(year, category);
-    } else if (year && !category) {
-      query += ` WHERE YEAR(o.OrderDate) = ?`;
-      queryParams.push(year);
-    } else if (!year && category) {
-      query += ` WHERE ecommercedb.GetMainCategory(p.CategoryID) COLLATE utf8mb4_unicode_ci= ?`;
-      queryParams.push(category);
-    }
-
-    query += ` GROUP BY QUARTER(o.OrderDate) ORDER BY QUARTER(o.OrderDate)`;
-
-    // Execute the query with the appropriate parameters
-    const [rows] = await connection.execute(query, queryParams);
-
-    // Format the data, ensuring both quarter and sales are returned
-    const salesData: SalesData[] = (rows as any[]).map(row => ({
+    // Extract the actual result set from the stored procedure's response
+    const salesData: SalesData[] = (rows as any[][])[0].map(row => ({
       quarter: `Q${row.quarter}`,  // Map quarter from 1-4 to Q1, Q2, etc.
       sales: row.sales,            // Map sales values from the query result
     }));
