@@ -1,4 +1,3 @@
-// components/MostSoldProducts.tsx
 "use client";
 
 import { useState } from 'react';
@@ -40,27 +39,39 @@ const MostSoldProducts = () => {
     }
   };
 
-  // Prepare data for the chart and total quantity for the product list
-  const productTotals: Record<string, number> = {};
-  const chartData = products.reduce((acc, product) => {
-    // Aggregate total quantity sold for each product
-    productTotals[product.productName] = (productTotals[product.productName] || 0) + product.totalQuantitySold;
-
-    // Prepare chart data
-    const existing = acc.find(item => item.label === product.productName);
-    if (existing) {
-      existing.data.push(product.totalQuantitySold);
+  // Calculate total quantities sold for each product
+  const productTotals: { [key: string]: number } = {};
+  products.forEach(product => {
+    if (productTotals[product.productName]) {
+      productTotals[product.productName] += product.totalQuantitySold;
     } else {
-      acc.push({
+      productTotals[product.productName] = product.totalQuantitySold;
+    }
+  });
+
+  // Prepare the chart data and x-axis labels (months)
+  const chartData: { label: string; data: number[] }[] = [];
+  const xLabels = Array.from(new Set(products.map(product => product.month))); // Extract unique months for x-axis
+
+  // Organize data by product and month
+  products.forEach(product => {
+    const existingProduct = chartData.find(item => item.label === product.productName);
+    if (existingProduct) {
+      // Find the correct position of the month in the xLabels array and set the data accordingly
+      const monthIndex = xLabels.indexOf(product.month);
+      existingProduct.data[monthIndex] = product.totalQuantitySold;
+    } else {
+      // Initialize a new product with data array filled with 0s and set the current month's data
+      const newProductData = new Array(xLabels.length).fill(0);
+      const monthIndex = xLabels.indexOf(product.month);
+      newProductData[monthIndex] = product.totalQuantitySold;
+
+      chartData.push({
         label: product.productName,
-        data: [product.totalQuantitySold]
+        data: newProductData,
       });
     }
-    return acc;
-  }, [] as { label: string; data: number[] }[]);
-
-  // Prepare xLabels as an array of months for the x-axis
-  const xLabels = Array.from(new Set(products.map(product => product.month)));
+  });
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-gradient-to-r from-white-100 to-gray-300 rounded-lg shadow-lg">
@@ -88,22 +99,24 @@ const MostSoldProducts = () => {
 
       {error && <p className="text-red-500 text-center">{error}</p>}
 
-      {products.length > 0 && (
+      {Object.entries(productTotals).length > 0 && (
         <>
           <ul className="mt-4 border-t border-gray-300">
-            {Object.entries(productTotals).map(([productName, totalSold]) => (
-              <li key={productName} className="flex justify-between py-3 border-b border-gray-200">
+            {Object.keys(productTotals).map(productName => ( // Changed to only show product names
+              <li key={productName} className="py-3 border-b border-gray-200">
                 <span className="font-semibold text-gray-800">{productName}</span>
-                <span className="text-gray-600">{totalSold} sold</span> {/* Correct total quantity displayed */}
               </li>
             ))}
           </ul>
 
-          {/* Render the LineChart here */}
+          {/* Render the LineChart */}
           <LineChart
             width={750}
             height={450}
-            series={chartData} // Ensure this is the correct type for LineChart
+            series={chartData.map((item) => ({
+              label: item.label,
+              data: item.data,
+            }))} // Ensure this is the correct type for LineChart
             xAxis={[{ scaleType: 'point', data: xLabels }]} // Use unique month labels for x-axis
           />
         </>

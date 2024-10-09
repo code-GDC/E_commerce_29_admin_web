@@ -4,8 +4,8 @@ import mysql, { RowDataPacket } from 'mysql2/promise';
 // Define the structure for product sales data
 type ProductSalesData = {
   productName: string;
-  month: string; // Add month to the structure
-  totalQuantitySold: number; // Total quantity sold for that month
+  month: string; // Month in 'YYYY-MM' format
+  totalQuantitySold: number;
 };
 
 // Function to connect to the MySQL database
@@ -24,7 +24,7 @@ const connectToDatabase = async () => {
   }
 };
 
-// API handler to get the most sold products in a given period
+// API handler to get the most sold products in a given period grouped by month
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const startDate = searchParams.get('startDate');
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
   try {
     const connection = await connectToDatabase();
 
-    // Updated query to include month grouping
+    // Query to get total quantity sold per product, grouped by month for the given date range
     const query = `
       SELECT p.Title AS productName, 
              DATE_FORMAT(o.OrderDate, '%Y-%m') AS month,  -- Extract year and month
@@ -47,9 +47,8 @@ export async function GET(req: NextRequest) {
       JOIN product p ON v.ProductID = p.ProductID
       JOIN \`order\` o ON oi.OrderID = o.OrderID
       WHERE o.OrderDate BETWEEN ? AND ?
-      GROUP BY p.ProductID, month  -- Group by product and month
-      ORDER BY month, totalQuantitySold DESC
-      LIMIT 100;  -- Adjust to show more or fewer products
+      GROUP BY p.Title, month  -- Group by product and month
+      ORDER BY month, p.Title;
     `;
 
     const [rows] = await connection.query<RowDataPacket[]>(query, [startDate, endDate]);
