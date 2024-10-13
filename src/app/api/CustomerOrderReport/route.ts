@@ -17,30 +17,13 @@ export async function GET(req: NextRequest) {
   try {
     const connection = await connectToDatabase();
 
-    // SQL query to get the required fields for the report
-    const query = `
-      SELECT 
-        o.OrderID, 
-        o.OrderDate, 
-        u.UserID, 
-        CONCAT(u.FirstName, ' ', u.LastName) AS CustomerName,
-        o.OrderTotal, 
-        o.PaymentMethod, 
-        o.DeliveryType 
-      FROM 
-        \`order\` o
-        LEFT JOIN user u ON o.UserID = u.UserID
-      ORDER BY 
-        o.OrderDate DESC
-    `;
-
-    // Execute the query
-    const [rows] = await connection.execute(query);
+    // Call the stored procedure
+    const [rows, fields]: [any, any] = await connection.execute('CALL GetOrderReport()');
 
     await connection.end();
 
     // Return the data as JSON
-    return NextResponse.json({ orders: rows });
+    return NextResponse.json({ orders: rows[0] });  // Use rows[0] to return the actual data
   } catch (error: any) {
     console.error('Database error:', error);
     return NextResponse.json({ error: 'Database query failed: ' + error.message }, { status: 500 });

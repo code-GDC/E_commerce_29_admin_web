@@ -1,53 +1,41 @@
-import { NextRequest, NextResponse } from "next/server";
+// src/pages/api/ProductInterest.ts
+
+import { NextApiRequest, NextApiResponse } from 'next';
 import mysql from 'mysql2/promise';
 
-export async function GET(req: NextRequest) {
-    const { searchParams } = new URL(req.url);
-    const productId = searchParams.get('productId');
-    const period = searchParams.get('period');  // year, week, etc.
-  
-    try {
-      const connection = await connectToDatabase();
-  
-      let groupByClause = '';
-      if (period === 'year') {
-        groupByClause = 'YEAR(o.OrderDate)';
-      } else if (period === 'week') {
-        groupByClause = 'YEAR(o.OrderDate), WEEK(o.OrderDate)';
-      }
-  
-      const query = `
-        SELECT ${groupByClause} AS timePeriod, SUM(oi.Quantity) AS interest
-        FROM orderitem oi
-        LEFT JOIN \`order\` o ON oi.OrderID = o.OrderID
-        Left JOIN variant v ON oi.VariantID = v.VariantID
-        WHERE v.ProductID = ?
-        GROUP BY ${groupByClause}
-        ORDER BY ${groupByClause}
-      `;
-  
-      const [rows] = await connection.execute(query, [productId]);
-  
-      await connection.end();
-  
-      return NextResponse.json({ data: rows });
-    } catch (error: any) {
-      console.error('Database error:', error);
-      return NextResponse.json({ error: 'Database query failed: ' + error.message }, { status: 500 });
-    }
-  }
-  
-
-
-
 async function connectToDatabase() {
-    const connection = await mysql.createConnection({
-        host: process.env.MYSQL_HOST,
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASSWORD,
-        database: process.env.MYSQL_DATABASE,
-        port: Number(process.env.MYSQL_PORT),
-    });
-    return connection;
+  const connection = await mysql.createConnection({
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+    port: Number(process.env.MYSQL_PORT),
+  });
+  return connection;
 }
-  
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const productId = req.query.productId as string;
+
+  console.log('Product ID received:', productId);
+
+  if (!productId) {
+    return res.status(400).json({ error: 'Missing productId parameter' });
+  }
+
+  try {
+    const connection = await connectToDatabase();
+    const [rows] = await connection.query('CALL GetProductInterest(?)', [productId]);
+    console.log('Interest data from database:', rows);
+    await connection.end();
+
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return res.status(404).json({ error: 'No data found for the given productId' });
+    }
+
+    res.status(200).json({ data: rows[0] });
+  } catch (error: any) {
+    console.error('Database error:', error);
+    res.status(500).json({ error: 'Database query failed: ' + error.message });
+  }
+}
