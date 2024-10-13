@@ -30,7 +30,7 @@ const Sidebar = () => {
                         </Link>
                     </li>
                     <li className="flex justify-center">
-                        <Link href="/dashboard">
+                        <Link href="/dashboard/ProductsWithMostNumberOfSales">
                             <div className="bg-gray-700 p-4 rounded-lg shadow hover:bg-gray-600 transition-colors flex items-center justify-center">
                                 <span className="font-medium text-center" style={{ fontFamily: 'Poppins, sans-serif' }}>
                                     Products with Most Sales
@@ -39,7 +39,7 @@ const Sidebar = () => {
                         </Link>
                     </li>
                     <li className="flex justify-center">
-                        <Link href="/dashboard/category-most-orders">
+                        <Link href="/dashboard/ProductCategoryWithMostOrders">
                             <div className="bg-gray-700 p-4 rounded-lg shadow hover:bg-gray-600 transition-colors flex items-center justify-center">
                                 <span className="font-medium text-center" style={{ fontFamily: 'Poppins, sans-serif' }}>
                                     Product Category with Most Orders
