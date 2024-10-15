@@ -15,14 +15,11 @@ async function connectToDatabase() {
 }
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const searchTerm = searchParams.get('search') || '';
-
-  console.log('Search term received:', searchTerm);
+  console.log('Fetching all product titles');
 
   try {
     const connection = await connectToDatabase();
-    const [rows] = await connection.execute('CALL SearchProductTitles(?)', [`%${searchTerm}%`]);
+    const [rows] = await connection.execute('SELECT ProductID, Title FROM product'); // Query to get all products
     console.log('Product titles from database:', rows);
     await connection.end();
 

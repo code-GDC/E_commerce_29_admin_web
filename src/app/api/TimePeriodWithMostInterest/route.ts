@@ -1,8 +1,7 @@
-// src/pages/api/ProductInterest.ts
-
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
 
+// Function to establish a MySQL connection
 async function connectToDatabase() {
   const connection = await mysql.createConnection({
     host: process.env.MYSQL_HOST,
@@ -14,28 +13,44 @@ async function connectToDatabase() {
   return connection;
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const productId = req.query.productId as string;
+// API route handler using GET method
+export async function GET(req: NextRequest) {
+  // Get 'productId' from the URL search parameters
+  const { searchParams } = new URL(req.url);
+  const productId = searchParams.get('productId');
 
-  console.log('Product ID received:', productId);
-
+  // Check if productId is provided
   if (!productId) {
-    return res.status(400).json({ error: 'Missing productId parameter' });
+    return NextResponse.json({ error: 'Missing productId parameter' }, { status: 400 });
   }
 
   try {
+    // Connect to the database
     const connection = await connectToDatabase();
+
+    // Execute stored procedure for product interest
     const [rows] = await connection.query('CALL GetProductInterest(?)', [productId]);
-    console.log('Interest data from database:', rows);
     await connection.end();
 
+    // Handle case where no data is returned
     if (!Array.isArray(rows) || rows.length === 0) {
-      return res.status(404).json({ error: 'No data found for the given productId' });
+      return NextResponse.json({ error: 'No data found for the given productId' }, { status: 404 });
     }
 
-    res.status(200).json({ data: rows[0] });
+    // Return the result data
+    return NextResponse.json({ data: rows[0] });
   } catch (error: any) {
+    // Log and return the error
     console.error('Database error:', error);
-    res.status(500).json({ error: 'Database query failed: ' + error.message });
+    return NextResponse.json({ error: 'Database query failed: ' + error.message }, { status: 500 });
   }
+}
+
+// Export a handler for unsupported methods
+export async function POST() {
+  return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 });
+}
+
+export async function DELETE() {
+  return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 });
 }
