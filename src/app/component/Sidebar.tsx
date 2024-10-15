@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 const Sidebar = () => {
     const adminName = 'Admin Name'; // Replace with dynamic username if needed
-    const adminPhoto = '/path-to-admin-photo.jpg'; // Replace with the actual photo path
+    const adminPhoto = 'https://img.freepik.com/free-vector/tech-support-concept_1284-14631.jpg?w=740&t=st=1728952589~exp=1728953189~hmac=bd180d35fb37a58485fad7e1ee76195551b3b918936d00cbd41a0ac02d44da62'; // Replace with the actual photo path
 
     return (
         <div className="text-white p-6 shadow-lg flex flex-col justify-between h-full max-h-screen">
@@ -30,7 +30,7 @@ const Sidebar = () => {
                         </Link>
                     </li>
                     <li className="flex justify-center">
-                        <Link href="/dashboard">
+                        <Link href="/dashboard/ProductsWithMostNumberOfSales">
                             <div className="bg-gray-700 p-4 rounded-lg shadow hover:bg-gray-600 transition-colors flex items-center justify-center">
                                 <span className="font-medium text-center" style={{ fontFamily: 'Poppins, sans-serif' }}>
                                     Products with Most Sales
@@ -39,7 +39,7 @@ const Sidebar = () => {
                         </Link>
                     </li>
                     <li className="flex justify-center">
-                        <Link href="/dashboard/category-most-orders">
+                        <Link href="/dashboard/ProductCategoryWithMostOrders">
                             <div className="bg-gray-700 p-4 rounded-lg shadow hover:bg-gray-600 transition-colors flex items-center justify-center">
                                 <span className="font-medium text-center" style={{ fontFamily: 'Poppins, sans-serif' }}>
                                     Product Category with Most Orders
