@@ -20,7 +20,7 @@ const connectToDatabase = async () => {
     });
     return connection;
   } catch (error) {
-    throw new Error('Failed to connect to the database');
+    throw new Error('Failed to connect to the database: ' + (error as Error).message);
   }
 };
 
@@ -34,39 +34,51 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid date range provided' }, { status: 400 });
   }
 
+  let connection;
+
   try {
-    const connection = await connectToDatabase();
+    connection = await connectToDatabase();
 
-    // Query to get total quantity sold per product, grouped by month for the given date range
-    const query = `
-      SELECT p.Title AS productName, 
-             DATE_FORMAT(o.OrderDate, '%Y-%m') AS month,  -- Extract year and month
-             SUM(oi.Quantity) AS totalQuantitySold
-      FROM orderitem oi
-      JOIN variant v ON oi.VariantID = v.VariantID
-      JOIN product p ON v.ProductID = p.ProductID
-      JOIN \`order\` o ON oi.OrderID = o.OrderID
-      WHERE o.OrderDate BETWEEN ? AND ?
-      GROUP BY p.Title, month  -- Group by product and month
-      ORDER BY month, p.Title;
-    `;
+    // Call the stored procedure
+    const query = `CALL GetProductSalesByMonth(?, ?);`;
+    const [rows]: [RowDataPacket[], any] = await connection.query(query, [startDate, endDate]);
 
-    const [rows] = await connection.query<RowDataPacket[]>(query, [startDate, endDate]);
+    // Check if the procedure returned any data
+    if (!rows || rows.length === 0 || rows[0].length === 0) {
+      throw new Error('No data returned from the stored procedure.');
+    }
 
     // Map the results to the ProductSalesData structure
-    const products: ProductSalesData[] = rows.map(row => ({
+    const products: ProductSalesData[] = rows[0].map((row: RowDataPacket) => ({
       productName: row.productName,
-      month: row.month,  // Add month to the mapped data
+      month: row.month,
       totalQuantitySold: row.totalQuantitySold,
     }));
 
-    await connection.end();
-
     return NextResponse.json({ data: products });
+
   } catch (error: unknown) {
     if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error('Error during database operation:', error.message);
+
+      return NextResponse.json(
+        { error: 'Database query failed: ' + error.message },
+        { status: 500 }
+      );
     }
-    return NextResponse.json({ error: 'An unknown error occurred' }, { status: 500 });
+
+    return NextResponse.json(
+      { error: 'An unknown error occurred' },
+      { status: 500 }
+    );
+
+  } finally {
+    if (connection) {
+      try {
+        await connection.end();
+      } catch (closeError) {
+        console.error('Failed to close the database connection:', (closeError as Error).message);
+      }
+    }
   }
 }

@@ -22,38 +22,53 @@ const connectToDatabase = async () => {
     return connection;
   } catch (error) {
     console.error('Database connection error:', (error as Error).message);
-    throw error; // Rethrow the error to be caught in the GET handler
+    throw new Error('Failed to connect to the database: ' + (error as Error).message); // Rethrow with a clear message
   }
 };
 
 // API handler for getting the top 10 most ordered product categories
 export async function GET(req: NextRequest) {
-  try {
-    const connection = await connectToDatabase();
+  let connection;
 
-    const query = `
-      SELECT c.categoryName, COUNT(o.OrderID) AS orderCount
-      FROM category c
-      LEFT JOIN product p ON c.categoryID = p.categoryID
-      LEFT JOIN variant v ON p.productID = v.productID
-      LEFT JOIN orderitem o ON v.variantID = o.variantID
-      GROUP BY c.categoryID
-      ORDER BY orderCount DESC
-      LIMIT 10;
-    `;
+  try {
+    connection = await connectToDatabase();
+
+    // Execute the stored procedure defined in the database
+    const query = `CALL GetTopCategories();`;
 
     const [rows]: [CategoryOrderData[], any] = await connection.query(query) as [CategoryOrderData[], any];
 
+    if (!rows || rows.length === 0) {
+      throw new Error('No data returned from the stored procedure.');
+    }
+
     await connection.end();
 
-    return NextResponse.json({ connectionStatus: 'Connected', data: rows }); // Return array of categories
+    return NextResponse.json({ connectionStatus: 'Connected', data: rows[0] }); // Return array of categories (rows[0] since it's from CALL)
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error('Database error:', error.message);
-      return NextResponse.json({ connectionStatus: 'Disconnected', error: 'Database query failed: ' + error.message }, { status: 500 });
+      console.error('Error executing stored procedure:', error.message);
+
+      // If there's an issue with the connection, ensure it gets closed
+      if (connection) {
+        try {
+          await connection.end();
+        } catch (closeError) {
+          console.error('Failed to close the database connection:', (closeError as Error).message);
+        }
+      }
+
+      return NextResponse.json(
+        { connectionStatus: 'Disconnected', error: 'Database query failed: ' + error.message },
+        { status: 500 }
+      );
     } else {
       console.error('An unknown error occurred:', error);
-      return NextResponse.json({ connectionStatus: 'Disconnected', error: 'An unknown error occurred' }, { status: 500 });
+
+      return NextResponse.json(
+        { connectionStatus: 'Disconnected', error: 'An unknown error occurred' },
+        { status: 500 }
+      );
     }
   }
 }
