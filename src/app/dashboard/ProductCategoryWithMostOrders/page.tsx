@@ -1,7 +1,7 @@
 "use client"; // Mark this file as a Client Component
 
 import { useEffect, useState } from 'react';
-import { BarChart } from '@mui/x-charts'; // Ensure you have this import
+import { BarChart } from '@mui/x-charts/BarChart'; // Ensure you have this import
 import { axisClasses } from '@mui/x-charts/ChartsAxis';
 
 // Define the type for category order data
