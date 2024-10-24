@@ -1,0 +1,6 @@
+### Get User Count
+GET http://localhost:3000/api/getUserCount
+
+### Get Total Revenue
+GET http://localhost:3000/api/getRevenue
+

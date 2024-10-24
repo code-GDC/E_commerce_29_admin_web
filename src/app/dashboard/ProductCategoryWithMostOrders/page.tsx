@@ -19,7 +19,7 @@ const ProductCategoryWithMostOrders = () => {
       try {
         const response = await fetch('/api/ProductCategoryWithMostOrders');
         const result = await response.json();
-        setData(result.data); // Access the data property from the result
+        setData(result.data || []); // Ensure data is an array
         setConnectionStatus(result.connectionStatus || 'Connected'); // Handle the connection status
       } catch (error) {
         console.error('Error fetching data:', error);
