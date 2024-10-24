@@ -74,20 +74,20 @@ const MostSoldProducts = () => {
   });
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-gradient-to-r from-white-100 to-gray-300 rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Most Sold Products</h1>
+    <div className="max-w-3xl mx-auto p-6 bg-gray-100 text-black rounded-lg shadow-lg">
+      <h1 className="text-3xl font-bold text-center mb-6">Most Sold Products</h1>
       <div className="flex flex-col sm:flex-row sm:justify-between mb-4">
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="p-2 border border-gray-300 rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2 sm:mb-0"
+          className="p-2 border border-gray-600 bg-gray-400 text-white rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2 sm:mb-0"
         />
         <input
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className="p-2 border border-gray-300 rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2 sm:mb-0"
+          className="p-2 border border-gray-600 bg-gray-400 text-white rounded shadow focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2 sm:mb-0"
         />
         <button
           onClick={fetchMostSoldProducts}
@@ -101,10 +101,10 @@ const MostSoldProducts = () => {
 
       {Object.entries(productTotals).length > 0 && (
         <>
-          <ul className="mt-4 border-t border-gray-300">
-            {Object.keys(productTotals).map(productName => ( // Changed to only show product names
-              <li key={productName} className="py-3 border-b border-gray-200">
-                <span className="font-semibold text-gray-800">{productName}</span>
+          <ul className="mt-4 border-t border-gray-600">
+            {Object.keys(productTotals).map(productName => (
+              <li key={productName} className="py-3 border-b border-gray-600">
+                <span className="font-semibold">{productName}</span>
               </li>
             ))}
           </ul>
