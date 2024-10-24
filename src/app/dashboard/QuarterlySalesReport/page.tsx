@@ -61,7 +61,7 @@ export default function SalesData() {
             const quarterIndex = parseInt(item.quarter.replace('Q', '')) - 1; // Convert Q1, Q2, ... to 0, 1, ...
             salesDataArray[quarterIndex] = parseInt(item.sales); // Ensure sales is a number
           });
-
+          
           if (!data.sales || data.sales.length === 0) {
             setError("No sales data available for the selected filters.");
             return;
@@ -71,11 +71,9 @@ export default function SalesData() {
             labels: ['Q1', 'Q2', 'Q3', 'Q4'], // Assuming sales data is per quarter
             datasets: [
               {
-                label: isAllProducts
-                  ? `All Products Sales in ${isAllTime ? "All Time" : selectedYear}`
-                  : `${selectedCategory} Sales in ${isAllTime ? "All Time" : selectedYear}`,
-                backgroundColor: '#4ADE80',
-                borderColor: '#22C55E',
+                label: isAllProducts ? `All Products Sales in ${isAllTime ? "All Time" : selectedYear}` : `${selectedCategory} Sales in ${isAllTime ? "All Time" : selectedYear}`,
+                backgroundColor: '#42a5f5', // Changed to the specified color
+                borderColor: '#1D4ED8', // Darker shade of blue for border
                 data: salesDataArray, // assuming 'data.sales' contains sales numbers
               },
             ],
@@ -95,6 +93,32 @@ export default function SalesData() {
     fetchSalesData();
   }, [selectedYear, selectedCategory, isAllTime, isAllProducts]);
 
+  // Chart options with grid lines removed
+  const chartOptions = {
+    responsive: true,
+    scales: {
+      x: {
+        grid: {
+          display: false, // Removes grid lines on the x-axis
+        },
+      },
+      y: {
+        grid: {
+          display: false, // Removes grid lines on the y-axis
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top' as const, // Position of the legend
+        labels: {
+          color: '#000', // Change legend label color to black for visibility
+        },
+      },
+    },
+  };
+
   return (
     <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center flex-col">
       {/* Year Selection */}
@@ -102,11 +126,11 @@ export default function SalesData() {
         {[2020, 2021, 2022, 2023, 2024].map(year => (
           <button
             key={year}
-            onClick={() => { 
-              setSelectedYear(year); 
+            onClick={() => {
+              setSelectedYear(year);
               setIsAllTime(false); // Reset "All Time" selection when a year is selected
             }}
-            className={`px-3 py-1 rounded ${selectedYear === year && !isAllTime ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'} text-sm`}
+            className={`px-4 py-2 rounded ${selectedYear === year && !isAllTime ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
           >
             {year}
           </button>
@@ -114,7 +138,7 @@ export default function SalesData() {
         {/* "All Time" button */}
         <button
           onClick={() => setIsAllTime(true)}
-          className={`px-3 py-1 rounded ${isAllTime ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'} text-sm`}
+          className={`px-4 py-2 rounded ${isAllTime ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
         >
           All Time
         </button>
@@ -129,7 +153,7 @@ export default function SalesData() {
               setSelectedCategory(category);
               setIsAllProducts(false); // Reset "All Products" selection when a specific category is selected
             }}
-            className={`px-3 py-1 rounded ${selectedCategory === category && !isAllProducts ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'} text-sm`}
+            className={`px-4 py-2 rounded ${selectedCategory === category && !isAllProducts ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
           >
             {category}
           </button>
@@ -137,56 +161,23 @@ export default function SalesData() {
         {/* "All Products" button */}
         <button
           onClick={() => setIsAllProducts(true)}
-          className={`px-3 py-1 rounded ${isAllProducts ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'} text-sm`}
+          className={`px-4 py-2 rounded ${isAllProducts ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
         >
           All Products
         </button>
       </div>
 
       {/* Quarterly Sales Report */}
-      <div className="bg-white rounded-lg shadow p-4 w-full max-w-4xl">
+      <div className="bg-white rounded-lg shadow p-4 w-1/2 flex flex-col items-center justify-center">
         <h2 className="text-xl font-semibold mb-2 text-gray-800 text-center">
           {isAllProducts
             ? `All Products Sales Report for ${isAllTime ? "All Time" : selectedYear}`
             : `${selectedCategory} Sales Report for ${isAllTime ? "All Time" : selectedYear}`}
         </h2>
-        <div className="w-full flex items-center justify-center">
+        <div className="w-full h-[450px] flex items-center justify-center">
           {loading && <p>Loading data...</p>}
           {error && <p className="text-red-500">{error}</p>}
-          {salesData && (
-            <div className="w-full h-[500px]"> {/* Larger height */}
-              <Bar
-                data={salesData}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: {
-                      position: 'top',
-                    },
-                    title: {
-                      display: true,
-                      text: 'Quarterly Sales Report',
-                    },
-                  },
-                  scales: {
-                    x: {
-                      title: {
-                        display: true,
-                        text: 'Quarters',
-                      },
-                    },
-                    y: {
-                      title: {
-                        display: true,
-                        text: 'Sales (USD)',
-                      },
-                      beginAtZero: true, // Ensure Y-axis starts at 0
-                    },
-                  },
-                }}
-              />
-            </div>
-          )}
+          {salesData && <Bar data={salesData} options={chartOptions} />} {/* Added options prop */}
         </div>
       </div>
     </div>

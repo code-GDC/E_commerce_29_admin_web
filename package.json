@@ -16,7 +16,7 @@
     "@iconify/react": "^5.0.2",
     "@mui/icons-material": "^6.1.5",
     "@mui/material": "^6.1.5",
-    "@mui/x-charts": "^7.20.0",
+    "@mui/x-charts": "^7.21.0",
     "@toolpad/core": "^0.8.1",
     "@types/lodash": "^4.17.10",
     "clsx": "^2.1.1",

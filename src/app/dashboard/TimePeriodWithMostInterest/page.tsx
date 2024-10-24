@@ -1,4 +1,5 @@
-"use client";
+"use client"; // Mark this file as a Client Component
+
 import { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -83,8 +84,8 @@ export default function ProductInterestByTimePeriod() {
             datasets: [
               {
                 label: 'Product Interest',
-                backgroundColor: '#4ADE80',
-                borderColor: '#22C55E',
+                backgroundColor: '#42a5f5', // Changed to the specified color
+                borderColor: '#1D4ED8', // Darker shade for border
                 data: interestValues,
               }
             ],
@@ -127,7 +128,7 @@ export default function ProductInterestByTimePeriod() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-900  text-gray-800 flex items-center justify-center flex-col">
+    <div className="min-h-screen w-full bg-gray-900 text-gray-800 flex items-center justify-center flex-col">
       <div className="bg-white rounded-lg shadow p-6 w-3/4">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800 text-center">Product Interest by Time Period</h2>
 
@@ -176,7 +177,28 @@ export default function ProductInterestByTimePeriod() {
         <div className="bg-white rounded-lg shadow p-10 flex flex-col items-center justify-center">
           {loading && <p>Loading data...</p>}
           {error && <p className="text-red-500">{error}</p>}
-          {interestData && <Bar data={interestData} width={600} height={300} />}
+          {interestData && (
+            <Bar 
+              data={interestData} 
+              options={{
+                responsive: true,
+                scales: {
+                  x: {
+                    grid: {
+                      display: false, // Disable grid lines on the x-axis
+                    },
+                  },
+                  y: {
+                    grid: {
+                      display: false, // Disable grid lines on the y-axis
+                    },
+                  },
+                },
+              }} 
+              width={600} 
+              height={300} 
+            />
+          )}
         </div>
       </div>
     </div>
