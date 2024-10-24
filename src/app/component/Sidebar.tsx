@@ -41,7 +41,7 @@ const Sidebar = () => {
   const toggleOpenSettings = () => setOpenSettings(!openSettings);
 
   return (
-    <div className="text-white p-6 shadow-lg flex flex-col justify-between h-full max-h-screen">
+    <div className="text-white p-6 shadow-lg flex flex-col bg-black justify-between h-full max-h-screen">
       {/* Admin info section */}
       {/* Uncomment below if you want to show admin info */}
       {/* <div className="flex flex-col items-center mb-8">

@@ -11,10 +11,10 @@ interface TopBarProps {
 const TopBar: React.FC<TopBarProps> = ({ adminName, adminImage }) => {
   return (
     <header className="text-white shadow-md">
-      <div className="container mx-auto flex justify-between items-center py-3 px-4">
+      <div className="container mx-auto flex justify-between items-center py-3 px-4  bg-black ">
         {/* Left section: Logo and title */}
         <div className="flex items-center">
-          <Image src="/logo.png" alt="Shopzy Logo" width={30} height={30} className="rounded-full" />
+          <Image src="/shop.jpg" alt="Shopzy Logo" width={30} height={30} className="rounded-full" />
           <h1 className="text-2xl font-bold ml-3">Shopzy</h1>
         </div>
 
