@@ -1,20 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import pool from '../../lib/dbConfig';  // Import the connection pool
 
 type SalesData = {
   quarter: string;
   sales: number;
-};
-
-// Database connection setup
-const connectToDatabase = async () => {
-  return await mysql.createConnection({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    port: Number(process.env.MYSQL_PORT),
-  });
 };
 
 // API handler function
@@ -24,10 +13,8 @@ export async function GET(req: NextRequest) {
   const category = searchParams.get('category');
 
   try {
-    const connection = await connectToDatabase();
-
-    // Call stored procedure with year and category parameters
-    const [rows] = await connection.execute(
+    // Call stored procedure with year and category parameters using the connection pool
+    const [rows] = await pool.execute(
       `CALL GetSalesByQuarter(?, ?)`,
       [year || null, category || null]
     );
@@ -37,8 +24,6 @@ export async function GET(req: NextRequest) {
       quarter: `Q${row.quarter}`,  // Map quarter from 1-4 to Q1, Q2, etc.
       sales: row.sales,            // Map sales values from the query result
     }));
-
-    await connection.end();
 
     // Return both quarters and sales as part of the response for clarity
     return NextResponse.json({ sales: salesData });
