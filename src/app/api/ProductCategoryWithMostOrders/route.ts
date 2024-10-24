@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
+import pool from '../../lib/dbConfig';  // Import the connection pool
 
 // Define the expected structure of category order data
 type CategoryOrderData = {
@@ -7,30 +7,10 @@ type CategoryOrderData = {
   orderCount: number;
 };
 
-// Connect to the database
-const connectToDatabase = async () => {
-  console.log('Connecting to the database...');
-  try {
-    const connection = await mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-      port: Number(process.env.MYSQL_PORT),
-    });
-    console.log('Database connected successfully');
-    return connection;
-  } catch (error) {
-    console.error('Database connection error:', (error as Error).message);
-    throw error; // Rethrow the error to be caught in the GET handler
-  }
-};
-
 // API handler for getting the top 10 most ordered product categories
 export async function GET(req: NextRequest) {
   try {
-    const connection = await connectToDatabase();
-
+    // Use the connection pool to execute the query
     const query = `
       SELECT c.categoryName, COUNT(o.OrderID) AS orderCount
       FROM category c
@@ -42,9 +22,7 @@ export async function GET(req: NextRequest) {
       LIMIT 10;
     `;
 
-    const [rows]: [CategoryOrderData[], any] = await connection.query(query) as [CategoryOrderData[], any];
-
-    await connection.end();
+    const [rows]: [CategoryOrderData[], any] = await pool.query(query) as [CategoryOrderData[], any];
 
     return NextResponse.json({ connectionStatus: 'Connected', data: rows }); // Return array of categories
   } catch (error: unknown) {

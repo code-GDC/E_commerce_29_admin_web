@@ -1,27 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import mysql, { RowDataPacket } from 'mysql2/promise';
+import pool from '../../lib/dbConfig';  // Import the connection pool
+import { RowDataPacket } from 'mysql2/promise';
 
 // Define the structure for product sales data
 type ProductSalesData = {
   productName: string;
   month: string; // Month in 'YYYY-MM' format
   totalQuantitySold: number;
-};
-
-// Function to connect to the MySQL database
-const connectToDatabase = async () => {
-  try {
-    const connection = await mysql.createConnection({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-      port: Number(process.env.MYSQL_PORT),
-    });
-    return connection;
-  } catch (error) {
-    throw new Error('Failed to connect to the database');
-  }
 };
 
 // API handler to get the most sold products in a given period grouped by month
@@ -35,8 +20,6 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const connection = await connectToDatabase();
-
     // Query to get total quantity sold per product, grouped by month for the given date range
     const query = `
       SELECT p.Title AS productName, 
@@ -51,7 +34,8 @@ export async function GET(req: NextRequest) {
       ORDER BY month, p.Title;
     `;
 
-    const [rows] = await connection.query<RowDataPacket[]>(query, [startDate, endDate]);
+    // Use the pool to execute the query
+    const [rows] = await pool.query<RowDataPacket[]>(query, [startDate, endDate]);
 
     // Map the results to the ProductSalesData structure
     const products: ProductSalesData[] = rows.map(row => ({
@@ -59,8 +43,6 @@ export async function GET(req: NextRequest) {
       month: row.month,  // Add month to the mapped data
       totalQuantitySold: row.totalQuantitySold,
     }));
-
-    await connection.end();
 
     return NextResponse.json({ data: products });
   } catch (error: unknown) {
