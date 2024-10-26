@@ -1,18 +1,20 @@
-import pool from '../../lib/dbConfig';  // Import the connection pool
+import pool from '../../lib/dbConfig';
 
-// Function to get sales interest by the given time period (year or week)
 export async function getSalesInterest(productId: string | null, period: string | null) {
-  // Build the GROUP BY clause dynamically based on the period
   let groupByClause = '';
+  let selectClause = '';
+
+  // Adjust SELECT and GROUP BY clauses based on the period
   if (period === 'year') {
     groupByClause = 'YEAR(o.OrderDate)';
-  } else if (period === 'week') {
-    groupByClause = 'YEAR(o.OrderDate), WEEK(o.OrderDate)';
+    selectClause = 'YEAR(o.OrderDate) AS timePeriod';
+  } else if (period === 'month') {
+    groupByClause = 'YEAR(o.OrderDate), MONTH(o.OrderDate)';
+    selectClause = "DATE_FORMAT(o.OrderDate, '%Y-%m') AS timePeriod";  // Combines year and month
   }
 
-  // Query to get sales interest by the given time period (year or week)
   const query = `
-    SELECT ${groupByClause} AS timePeriod, SUM(oi.Quantity) AS interest
+    SELECT ${selectClause}, SUM(oi.Quantity) AS interest
     FROM orderitem oi
     LEFT JOIN \`order\` o ON oi.OrderID = o.OrderID
     LEFT JOIN variant v ON oi.VariantID = v.VariantID
@@ -22,6 +24,9 @@ export async function getSalesInterest(productId: string | null, period: string 
   `;
 
   try {
+    // Disable ONLY_FULL_GROUP_BY for the session
+    await pool.execute("SET SESSION sql_mode = (SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''))");
+
     const [rows] = await pool.execute(query, [productId]);
     return rows;
   } catch (error: any) {

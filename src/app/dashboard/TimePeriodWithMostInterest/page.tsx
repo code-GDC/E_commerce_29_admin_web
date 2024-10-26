@@ -158,20 +158,19 @@ export default function ProductInterestByTimePeriod() {
           )}
         </div>
 
-        {/* Time period selection */}
-        <div className="mb-4 h-1/2">
-          <label htmlFor="period" className="mr-2 text-gray-800">Select Time Period:</label>
-          <select
-            id="period"
-            className="px-4 py-2 rounded border border-gray-300"
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-          >
-            <option value="year">Year</option>
-            <option value="week">Week</option>
-            {/* Add more options as needed */}
-          </select>
-        </div>
+       
+<div className="mb-4 h-1/2">
+  <label htmlFor="period" className="mr-2 text-gray-800">Select Time Period:</label>
+  <select
+    id="period"
+    className="px-4 py-2 rounded border border-gray-300"
+    value={period}
+    onChange={(e) => setPeriod(e.target.value)}
+  >
+    <option value="year">Year</option>
+    <option value="month">Month</option> {/* Changed from "week" to "month" */}
+  </select>
+</div>
 
         {/* Chart for product interest */}
         <div className="bg-white rounded-lg shadow p-10 flex flex-col items-center justify-center">
