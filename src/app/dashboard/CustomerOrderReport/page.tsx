@@ -1,26 +1,33 @@
 "use client";
 import { useState, useEffect } from 'react';
 
-export default function CustomerOrderReport() {
-  interface Order {
-    OrderID: number;
-    OrderDate: string;
-    UserID: number;
-    CustomerName: string;
-    OrderTotal: number;
-    PaymentMethod: string;
-    DeliveryType: string;
-    OrderStatus: string;
-    ShippingCost: number;
-    TaxAmount: number;
-  }
+interface Product {
+  ProductID: number;
+  ProductName: string;
+  QuantityOrdered: number;
+}
 
+interface Order {
+  OrderID: number;
+  OrderDate: string;
+  UserID: number;
+  CustomerName: string;
+  OrderTotal: number;
+  PaymentMethod: string;
+  DeliveryType: string;
+  Email: string;
+  PhoneNumber: string;
+  ShippingAddress: string;
+  EstimateDate: string | null;
+  Products: Product[]; // To store products per order
+}
+
+export default function CustomerOrderReport() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null); // To handle order details
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  // Fetch order data when the component is mounted
   useEffect(() => {
     const fetchOrderData = async () => {
       setLoading(true);
@@ -28,14 +35,48 @@ export default function CustomerOrderReport() {
 
       try {
         const response = await fetch('/api/CustomerOrderReport');
-        const data = await response.json();
+        console.log('Response:', response);
 
         if (response.ok) {
-          setOrders(data.orders);
+          const data = await response.json();
+          console.log('Fetched data:', data);
+
+          // Group products by OrderID
+          const groupedOrders: { [key: number]: Order } = {};
+          data.orders.forEach((order: any) => {
+            if (!groupedOrders[order.OrderID]) {
+              groupedOrders[order.OrderID] = {
+                OrderID: order.OrderID,
+                OrderDate: order.OrderDate,
+                UserID: order.UserID,
+                CustomerName: order.CustomerName,
+                OrderTotal: parseFloat(order.OrderTotal), // Ensure it's a number
+                PaymentMethod: order.PaymentMethod,
+                DeliveryType: order.DeliveryType,
+                Email: order.Email,
+                PhoneNumber: order.PhoneNumber,
+                ShippingAddress: order.ShippingAddress,
+                EstimateDate: order.EstimateDate,
+                Products: [] // Initialize as empty array
+              };
+            }
+            // Add the product to the Products array
+            groupedOrders[order.OrderID].Products.push({
+              ProductID: order.ProductID,
+              ProductName: order.ProductName,
+              QuantityOrdered: order.QuantityOrdered
+            });
+          });
+
+          // Convert the grouped object into an array
+          setOrders(Object.values(groupedOrders));
         } else {
-          setError(data.error);
+          const errorData = await response.json();
+          setError(errorData.error);
+          console.error('Error fetching orders:', errorData.error);
         }
       } catch (error) {
+        console.error('Fetch error:', error);
         setError("Failed to fetch order data.");
       } finally {
         setLoading(false);
@@ -50,24 +91,28 @@ export default function CustomerOrderReport() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-900  text-gray-800 flex items-center justify-center flex-col">
+    <div className="min-h-screen w-full bg-gray-900 text-gray-800 flex items-center justify-center flex-col">
       <div className="bg-white rounded-lg shadow p-6 w-full max-w-7xl">
         <h2 className="text-3xl font-semibold mb-6 text-gray-800 text-center">
           Customer Order Report
         </h2>
         {loading && <p>Loading data...</p>}
         {error && <p className="text-red-500">{error}</p>}
+        
+        {orders.length === 0 && !loading && !error && (
+          <p>No orders found.</p>
+        )}
 
         {orders.length > 0 && (
-          <div className="overflow-x-auto max-h-64 overflow-y-scroll"> {/* Scrollable container */}
+          <div className="overflow-x-auto max-h-64 overflow-y-scroll">
             <table className="min-w-full bg-white border border-gray-200">
               <thead>
                 <tr className="bg-gray-100 text-left">
                   <th className="px-4 py-3 border">Order ID</th>
-                  <th className="px-4 py-3 border">Customer Name</th>
                   <th className="px-4 py-3 border">Order Date</th>
-                  <th className="px-4 py-3 border">Order Total</th>
-                  <th className="px-4 py-3 border">Order Status</th>
+                  <th className="px-4 py-3 border">Total Price (Rs)</th>
+                  <th className="px-4 py-3 border">Customer ID</th>
+                  <th className="px-4 py-3 border">Customer Name</th>
                   <th className="px-4 py-3 border">Actions</th>
                 </tr>
               </thead>
@@ -75,12 +120,12 @@ export default function CustomerOrderReport() {
                 {orders.map((order) => (
                   <tr key={order.OrderID} className="hover:bg-gray-50">
                     <td className="px-4 py-3 border">{order.OrderID}</td>
-                    <td className="px-4 py-3 border">{order.CustomerName}</td>
                     <td className="px-4 py-3 border">
                       {new Date(order.OrderDate).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-3 border">${order.OrderTotal}</td>
-                    <td className="px-4 py-3 border">{order.OrderStatus}</td>
+                    <td className="px-4 py-3 border">Rs {order.OrderTotal.toFixed(2)}</td>
+                    <td className="px-4 py-3 border">{order.UserID}</td>
+                    <td className="px-4 py-3 border">{order.CustomerName}</td>
                     <td className="px-4 py-3 border">
                       <button
                         onClick={() => handleSelectOrder(order)}
@@ -98,17 +143,45 @@ export default function CustomerOrderReport() {
 
         {selectedOrder && (
           <div className="mt-6 p-4 bg-gray-50 rounded-lg shadow-lg w-full">
-            <h3 className="text-xl font-bold mb-4">Order Details for #{selectedOrder.OrderID}</h3>
+            <h3 className="text-xl font-bold mb-4">Customer Information:</h3>
+            <p><strong>Customer ID:</strong> {selectedOrder.UserID}</p>
             <p><strong>Customer Name:</strong> {selectedOrder.CustomerName}</p>
-            <p><strong>Email:</strong> example@example.com</p> {/* Add email from actual data */}
-            <p><strong>Shipping Address:</strong> Address details here</p> {/* Add from actual data */}
-            <p><strong>Billing Address:</strong> Address details here</p> {/* Add from actual data */}
-            <p><strong>Order Total:</strong> ${selectedOrder.OrderTotal}</p>
-            <p><strong>Tax Amount:</strong> ${selectedOrder.TaxAmount}</p>
-            <p><strong>Shipping Cost:</strong> ${selectedOrder.ShippingCost}</p>
+            <p><strong>Email Address:</strong> {selectedOrder.Email}</p>
+            <p><strong>Phone Number:</strong> {selectedOrder.PhoneNumber}</p>
+            <p><strong>Shipping Address:</strong> {selectedOrder.ShippingAddress}</p>
+
+            <h3 className="text-xl font-bold mt-4 mb-4">Order Details:</h3>
+            <p><strong>Order ID:</strong> {selectedOrder.OrderID}</p>
+            <p><strong>Order Date:</strong> {new Date(selectedOrder.OrderDate).toLocaleDateString()}</p>
+            <p><strong>Total Price:</strong> Rs {selectedOrder.OrderTotal.toFixed(2)}</p>
+            <p><strong>Estimated Date:</strong> {selectedOrder.EstimateDate || "Not available"}</p>
             <p><strong>Payment Method:</strong> {selectedOrder.PaymentMethod}</p>
-            <p><strong>Delivery Type:</strong> {selectedOrder.DeliveryType}</p>
-            <p><strong>Order Status:</strong> {selectedOrder.OrderStatus}</p>
+
+            <h3 className="text-xl font-bold mt-4 mb-4">Product Information:</h3>
+            {selectedOrder.Products && selectedOrder.Products.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border border-gray-200">
+                  <thead>
+                    <tr className="bg-gray-100 text-left">
+                      <th className="px-4 py-3 border">Product ID</th>
+                      <th className="px-4 py-3 border">Product Name</th>
+                      <th className="px-4 py-3 border">Quantity Ordered</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedOrder.Products.map((product) => (
+                      <tr key={product.ProductID} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 border">{product.ProductID}</td>
+                        <td className="px-4 py-3 border">{product.ProductName}</td>
+                        <td className="px-4 py-3 border">{product.QuantityOrdered}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p>No products found for this order.</p>
+            )}
           </div>
         )}
       </div>
