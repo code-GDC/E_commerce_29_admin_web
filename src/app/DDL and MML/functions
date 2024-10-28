@@ -1,0 +1,27 @@
+CREATE DEFINER=`root`@`localhost` FUNCTION `GetTopMainCategoryName`(catID INT) RETURNS varchar(50) CHARSET utf8mb4
+    DETERMINISTIC
+BEGIN
+    DECLARE currentCategoryID INT;
+    DECLARE topCategoryName VARCHAR(50);
+
+    SET currentCategoryID = catID;
+
+    -- Loop until we find a category with no parent
+    WHILE currentCategoryID IS NOT NULL DO
+        -- Check the parent of the current category
+        SELECT ParentCategoryID INTO currentCategoryID
+        FROM category
+        WHERE CategoryID = currentCategoryID;
+
+        -- If we find a category with no parent, retrieve the category name
+        IF currentCategoryID IS NULL THEN
+            SELECT CategoryName INTO topCategoryName
+            FROM category
+            WHERE CategoryID = catID;  -- Use the last valid catID to get the name
+        ELSE
+            SET catID = currentCategoryID;  -- Move to the next parent category
+        END IF;
+    END WHILE;
+
+    RETURN topCategoryName;  -- Return the top category name
+END
