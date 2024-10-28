@@ -68,7 +68,7 @@ const Sidebar = () => {
           </ListItem>
           <Collapse in={openCustomers} timeout="auto" unmountOnExit>
             <List component="div" disablePadding className="pl-4">
-              <Link href="/dashboard/customer-list" passHref>
+              <Link href="/dashboard/CustomerList" passHref>
                 <ListItem component="button" className="pl-4 hover:bg-gray-700 rounded">
                   <ListItemIcon className="text-white">
                     <PeopleAltIcon />
