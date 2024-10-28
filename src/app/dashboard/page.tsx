@@ -10,11 +10,15 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
+  TooltipItem,
 } from "chart.js";
 import { People, MonetizationOn, ShoppingCart } from "@mui/icons-material";
+import { Bounce } from "react-awesome-reveal";
+import Skeleton from '@mui/material/Skeleton'; // Import Skeleton from Material-UI
 
 // Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 interface Earnings {
   month: string;
@@ -36,6 +40,28 @@ const allMonths = [
   { month: "2024-12", name: "Dec" },
 ];
 
+const Spinner: React.FC = () => {
+  return (
+    <div className="flex justify-center items-center h-full">
+      <div className="loader"></div>
+    </div>
+  );
+};
+
+const CardSkeleton: React.FC = () => {
+  return (
+    <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
+      <div className="flex items-center">
+        <Skeleton variant="circular" width={56} height={56} className="mr-4" />
+        <div className="flex-1">
+          <Skeleton variant="text" width="60%" />
+          <Skeleton variant="text" width="40%" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DashboardPage: React.FC = () => {
   const [totalRevenue, setTotalRevenue] = useState<number | null>(null);
   const [userCount, setUserCount] = useState<number | null>(null);
@@ -45,7 +71,6 @@ const DashboardPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch data from APIs
     const fetchRevenue = async () => {
       try {
         const response = await fetch("/api/getRevenue");
@@ -107,9 +132,12 @@ const DashboardPage: React.FC = () => {
       {
         label: "Total Earnings",
         data: allMonths.map((month) => earningsMap.get(month.month) || 0),
-        fill: false,
+        fill: true,
         borderColor: "#4bc0c0",
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
         tension: 0.4,
+        pointRadius: 5,
+        pointHoverRadius: 7,
       },
     ],
   };
@@ -117,52 +145,95 @@ const DashboardPage: React.FC = () => {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    scales: {
+      y: {
+        type: 'linear' as const,
+        beginAtZero: true,
+        ticks: {
+          color: "#333",
+          callback: (value: number | string) => `${value}`,
+        },
+      },
+      x: {
+        type: 'category' as const,
+        ticks: {
+          color: "#333",
+        },
+      },
+    },
+    plugins: {
+      legend: { position: "top" as const, labels: { color: "#333" } },
+      tooltip: {
+        callbacks: {
+          label: (tooltipItem: TooltipItem<'line'>) => `Rs: ${tooltipItem.raw as number}`,
+        },
+      },
+    },
   };
 
   return (
-    <div className="p-4 sm:p-5 bg-gray-300 min-h-screen text-gray-950">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div className="p-6 sm:p-8 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-300 min-h-screen text-gray-950">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        
         {/* Total Customers Card */}
-        <div className="bg-teal-100 rounded-lg shadow-lg p-6 sm:p-8">
-          <div className="flex items-center">
-            <People className="text-4xl text-teal-700" />
-            <div className="ml-4">
-              <h6 className="text-lg">Total Customers</h6>
-              <h4 className="text-2xl font-bold">{userCount !== null ? `${userCount}` : "Loading..."}</h4>
+        <Bounce>
+          {loading ? (
+            <CardSkeleton /> // Use the CardSkeleton for loading state
+          ) : (
+            <div className="bg-teal-100 rounded-lg shadow-lg p-6 sm:p-8 hover:shadow-xl transition-shadow">
+              <div className="flex items-center">
+                <People className="text-5xl text-teal-700" />
+                <div className="ml-4">
+                  <h6 className="text-lg font-semibold">Total Customers</h6>
+                  <h4 className="text-3xl font-bold">{userCount !== null ? `${userCount}` : "Loading..."}</h4>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          )}
+        </Bounce>
 
         {/* Total Revenue Card */}
-        <div className="bg-green-100 rounded-lg shadow-lg p-6 sm:p-8">
-          <div className="flex items-center">
-            <MonetizationOn className="text-4xl text-green-600" />
-            <div className="ml-4">
-              <h6 className="text-lg">Total Revenue</h6>
-              <h4 className="text-2xl font-bold">{totalRevenue !== null ? `Rs: ${totalRevenue}` : "Loading..."}</h4>
+        <Bounce delay={100}>
+          {loading ? (
+            <CardSkeleton /> // Use the CardSkeleton for loading state
+          ) : (
+            <div className="bg-green-100 rounded-lg shadow-lg p-6 sm:p-8 hover:shadow-xl transition-shadow">
+              <div className="flex items-center">
+                <MonetizationOn className="text-5xl text-green-600" />
+                <div className="ml-4">
+                  <h6 className="text-lg font-semibold">Total Revenue</h6>
+                  <h4 className="text-3xl font-bold">{totalRevenue !== null ? `Rs: ${totalRevenue}` : "Loading..."}</h4>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          )}
+        </Bounce>
 
         {/* Total Deals Card */}
-        <div className="bg-yellow-50 rounded-lg shadow-lg p-6 sm:p-8">
-          <div className="flex items-center">
-            <ShoppingCart className="text-4xl text-yellow-700" />
-            <div className="ml-4">
-              <h6 className="text-lg">Total Deals</h6>
-              <h4 className="text-2xl font-bold">{totalDeals !== null ? `${totalDeals}` : "Loading..."}</h4>
+        <Bounce delay={200}>
+          {loading ? (
+            <CardSkeleton /> // Use the CardSkeleton for loading state
+          ) : (
+            <div className="bg-yellow-100 rounded-lg shadow-lg p-6 sm:p-8 hover:shadow-xl transition-shadow">
+              <div className="flex items-center">
+                <ShoppingCart className="text-5xl text-yellow-700" />
+                <div className="ml-4">
+                  <h6 className="text-lg font-semibold">Total Deals</h6>
+                  <h4 className="text-3xl font-bold">{totalDeals !== null ? `${totalDeals}` : "Loading..."}</h4>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          )}
+        </Bounce>
 
         {/* Earnings Chart */}
-        <div className="col-span-1 sm:col-span-3 bg-white rounded-lg shadow-lg p-6 sm:p-10">
-          <h3 className="text-xl mb-4">Earnings in 2024</h3>
-          <div className="relative h-96"> {/* Adjust height as needed */}
+        <div className="col-span-1 sm:col-span-3 bg-white rounded-lg shadow-lg p-6 sm:p-10 hover:shadow-xl transition-shadow">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">Earnings in 2024</h3>
+          <div className="relative h-96">
             {loading ? (
-              <p>Loading chart...</p>
+              <Spinner /> // Use the Spinner component here
             ) : error ? (
-              <p>Error loading chart: {error}</p>
+              <p className="text-red-600">Error loading chart: {error}</p>
             ) : (
               <Line data={chartData} options={chartOptions} />
             )}
