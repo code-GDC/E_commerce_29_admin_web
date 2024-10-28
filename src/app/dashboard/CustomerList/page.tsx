@@ -76,18 +76,18 @@ const CustomerList = () => {
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full p-4">
       <div className="flex items-center gap-4 py-4">
         <Input
           placeholder="Filter by first name..."
           value={(table.getColumn("FirstName")?.getFilterValue() as string) ?? ""}
           onChange={(e) => table.getColumn("FirstName")?.setFilterValue(e.target.value)}
-          className="max-w-sm"
+          className="max-w-sm shadow-md border border-gray-300 rounded-md"
         />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline" className="ml-auto shadow-md">
               Columns <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -108,7 +108,7 @@ const CustomerList = () => {
         </DropdownMenu>
       </div>
 
-      <div className="rounded-md border shadow">
+      <div className="rounded-md border shadow-md overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-10">
             <Loader className="animate-spin h-8 w-8 text-gray-600" />
@@ -119,7 +119,7 @@ const CustomerList = () => {
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="text-gray-800 font-semibold">
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -134,7 +134,7 @@ const CustomerList = () => {
                 table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id} className={row.getIsSelected() ? "bg-gray-100" : ""}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className="p-3">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -143,8 +143,8 @@ const CustomerList = () => {
               ) : (
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={index} className="animate-pulse">
-                    {columns.map((column) => (
-                      <TableCell key={column.id} className="h-10 bg-gray-200 rounded" />
+                    {columns.map((column, colIndex) => (
+                      <TableCell key={`${index}-${colIndex}`} className="h-10 bg-gray-200 rounded-md" />
                     ))}
                   </TableRow>
                 ))
@@ -154,8 +154,8 @@ const CustomerList = () => {
         )}
       </div>
 
-      <div className="flex items-center justify-between space-x-2 py-4">
-        <div className="text-sm text-muted-foreground">
+      <div className="flex items-center justify-between py-4">
+        <div className="text-sm text-gray-500">
           {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} selected.
         </div>
 
@@ -165,6 +165,7 @@ const CustomerList = () => {
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="shadow-md"
           >
             Previous
           </Button>
@@ -173,6 +174,7 @@ const CustomerList = () => {
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            className="shadow-md"
           >
             Next
           </Button>

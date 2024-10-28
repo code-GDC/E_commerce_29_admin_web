@@ -27,6 +27,23 @@ ChartJS.register(
   LineElement
 );
 
+// Spinner CSS
+const spinnerStyle = `
+  .spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3); /* Light grey */
+    border-top: 4px solid #42a5f5; /* Blue */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
 export default function SalesData() {
   const [selectedYear, setSelectedYear] = useState(2024); // Default year
   const [selectedCategory, setSelectedCategory] = useState('Electronics'); // Default category
@@ -121,6 +138,8 @@ export default function SalesData() {
 
   return (
     <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center flex-col">
+      <style>{spinnerStyle}</style> {/* Inject spinner CSS */}
+
       {/* Year Selection */}
       <div className="mb-4 flex space-x-2">
         {[2020, 2021, 2022, 2023, 2024].map(year => (
@@ -174,8 +193,9 @@ export default function SalesData() {
             ? `All Products Sales Report for ${isAllTime ? "All Time" : selectedYear}`
             : `${selectedCategory} Sales Report for ${isAllTime ? "All Time" : selectedYear}`}
         </h2>
+        
         <div className="w-full h-[450px] flex items-center justify-center">
-          {loading && <p>Loading data...</p>}
+          {loading && <div className="spinner" />} {/* Spinner */}
           {error && <p className="text-red-500">{error}</p>}
           {salesData && <Bar data={salesData} options={chartOptions} />} {/* Added options prop */}
         </div>
