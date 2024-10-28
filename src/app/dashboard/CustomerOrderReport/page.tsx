@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
+import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
 
 interface Product {
   ProductID: number;
@@ -96,14 +97,16 @@ export default function CustomerOrderReport() {
         <h2 className="text-3xl font-semibold mb-6 text-gray-800 text-center">
           Customer Order Report
         </h2>
-        {loading && <p>Loading data...</p>}
-        {error && <p className="text-red-500">{error}</p>}
         
-        {orders.length === 0 && !loading && !error && (
+        {loading ? (
+          <div className="flex justify-center items-center h-48">
+            <CircularProgress />
+          </div>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : orders.length === 0 ? (
           <p>No orders found.</p>
-        )}
-
-        {orders.length > 0 && (
+        ) : (
           <div className="overflow-x-auto max-h-64 overflow-y-scroll">
             <table className="min-w-full bg-white border border-gray-200">
               <thead>
