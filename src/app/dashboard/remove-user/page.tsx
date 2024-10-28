@@ -38,7 +38,7 @@ export default function RemoveCustomer() {
     <div className="min-h-screen w-full bg-gray-900 text-gray-800 flex items-center justify-center flex-col">
       <div className="bg-white rounded-lg shadow p-6 w-full max-w-md">
         <h2 className="text-3xl font-semibold mb-6 text-gray-800 text-center">
-          Unregister Customer
+          Delete Customer
         </h2>
         <div className="mb-4">
           <label htmlFor="userId" className="block text-gray-700 font-bold mb-2">
@@ -57,7 +57,7 @@ export default function RemoveCustomer() {
           className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
           disabled={loading}
         >
-          {loading ? 'Processing...' : 'Unregister Customer'}
+          {loading ? 'Processing...' :'Delete Customer'}
         </button>
         {error && <p className="text-red-500 mt-4">{error}</p>}
         {message && <p className="text-green-500 mt-4">{message}</p>}
