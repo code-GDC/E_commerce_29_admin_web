@@ -20,7 +20,7 @@ const TopBar: React.FC<TopBarProps> = ({ adminName, adminImage }) => {
 
         {/* Right section: Admin info and logout */}
         <div className="flex items-center space-x-3">
-          <Image src={adminImage} alt={adminName} width={30} height={30} className="rounded-full shadow-md" />
+          <Image src="/admin.jpg" alt="admin image" width={30} height={30} className="rounded-full shadow-md" />
           <span className="text-md font-medium">{adminName}</span>
           <button className="flex items-center space-x-1 border border-gray-700 rounded-md px-3 py-1 bg-gray-800 hover:bg-gray-700 transition-all duration-200">
             <MdLogout className="w-5 h-5" />

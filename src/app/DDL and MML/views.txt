@@ -1,0 +1,142 @@
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `customerinfo` AS
+    SELECT 
+        `u`.`UserID` AS `UserID`,
+        CONCAT(`u`.`FirstName`, ' ', `u`.`LastName`) AS `CustomerName`,
+        `rc`.`Email` AS `Email`,
+        `u`.`PhoneNumber` AS `PhoneNumber`,
+        `a`.`AddressNumber` AS `AddressNumber`,
+        `a`.`Lane` AS `Lane`,
+        `a`.`City` AS `City`,
+        `a`.`PostalCode` AS `PostalCode`,
+        `a`.`District` AS `District`
+    FROM
+        ((`user` `u`
+        JOIN `registeredcustomer` `rc` ON ((`u`.`UserID` = `rc`.`UserID`)))
+        LEFT JOIN `address` `a` ON ((`rc`.`AddressID` = `a`.`AddressID`)))
+
+
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `orderinfo` AS
+    SELECT 
+        `o`.`OrderID` AS `OrderID`,
+        `o`.`OrderDate` AS `OrderDate`,
+        `o`.`OrderTotal` AS `OrderTotal`,
+        `o`.`UserID` AS `UserID`,
+        `o`.`PaymentMethod` AS `PaymentMethod`,
+        `o`.`DeliveryType` AS `DeliveryType`,
+        `d`.`EstimateDate` AS `EstimateDate`
+    FROM
+        (`order` `o`
+        LEFT JOIN `deliverymodule` `d` ON ((`o`.`OrderID` = `d`.`OrderID`)))
+
+
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `productinfo` AS
+    SELECT 
+        `oi`.`OrderID` AS `OrderID`,
+        `v`.`VariantID` AS `ProductID`,
+        `v`.`VariantName` AS `ProductName`,
+        `oi`.`Quantity` AS `QuantityOrdered`
+    FROM
+        (`orderitem` `oi`
+        JOIN `variant` `v` ON ((`oi`.`VariantID` = `v`.`VariantID`)))
+
+CREATE DEFINER=root@localhost PROCEDURE GetMonthlyEarnings2024()
+BEGIN
+    SELECT 
+        DATE_FORMAT(OrderDate, '%Y-%m') AS Month,  -- Format the date as Year-Month
+        COALESCE(SUM(OrderTotal), 0) AS TotalEarnings  -- Sum of all order totals, replacing NULL with 0
+    FROM 
+        order  -- The table containing orders
+    WHERE 
+        YEAR(OrderDate) = 2024  -- Filter for the year 2024
+    GROUP BY 
+        Month  -- Group by the month (Year-Month)
+    ORDER BY 
+        Month; 
+END
+
+CREATE DEFINER=root@localhost PROCEDURE GetProductSalesByMonth(IN startDate DATE, IN endDate DATE)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        -- Handle the error
+        SELECT 'Error fetching product sales' AS message;  -- Error message
+        ROLLBACK;  -- Rollback any changes (if applicable)
+    END;
+
+    -- Start transaction (optional, since you are only reading data)
+    START TRANSACTION;
+
+    -- Validate input dates
+    IF startDate IS NULL OR endDate IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Start date and end date cannot be NULL.';
+    END IF;
+
+    IF startDate > endDate THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Start date must be less than or equal to end date.';
+    END IF;
+
+    -- Fetch product sales
+    SELECT 
+        p.Title AS productName, 
+        DATE_FORMAT(o.OrderDate, '%Y-%m') AS month,  -- Extract year and month
+        SUM(oi.Quantity) AS totalQuantitySold
+    FROM 
+        orderitem oi
+    JOIN 
+        variant v ON oi.VariantID = v.VariantID
+    JOIN 
+        product p ON v.ProductID = p.ProductID
+    JOIN 
+        order o ON oi.OrderID = o.OrderID  -- Escape the "order" table name
+    WHERE 
+        o.OrderDate BETWEEN startDate AND endDate
+    GROUP BY 
+        p.Title, month  -- Group by product and month
+    ORDER BY 
+        month, p.Title;
+
+    COMMIT;  -- Commit the transaction (not really necessary for SELECT, but good practice)
+
+END
+
+CREATE DEFINER=root@localhost PROCEDURE GetTopCategories()
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        -- Handle the error
+        SELECT 'Error fetching top categories' AS message;  -- Error message
+    END;
+
+    -- Fetch the top categories
+    SELECT 
+        c.CategoryName, 
+        COUNT(o.OrderID) AS OrderCount
+    FROM 
+        category c
+    LEFT JOIN 
+        productcategory pc ON c.CategoryID = pc.CategoryID
+    LEFT JOIN 
+        product p ON pc.ProductID = p.ProductID
+    LEFT JOIN 
+        variant v ON p.ProductID = v.ProductID
+    LEFT JOIN 
+        orderitem o ON v.VariantID = o.VariantID
+    GROUP BY 
+        c.CategoryID, c.CategoryName
+    ORDER BY 
+        OrderCount DESC
+    LIMIT 10;
+
+END

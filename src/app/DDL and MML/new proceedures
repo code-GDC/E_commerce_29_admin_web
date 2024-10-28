@@ -1,0 +1,67 @@
+CREATE  PROCEDURE GetOrderReport()
+BEGIN
+    SELECT 
+        o.OrderID,
+        o.OrderDate,
+        o.OrderTotal,
+        o.UserID,
+        c.CustomerName,
+        c.Email,
+        c.PhoneNumber,
+        CONCAT(c.AddressNumber, ', ', c.Lane, ', ', c.City, ', ', c.PostalCode, ', ', c.District) AS ShippingAddress,
+        o.PaymentMethod,
+        o.DeliveryType,
+        o.EstimateDate,
+        p.ProductID,
+        p.ProductName,
+        p.QuantityOrdered
+    FROM OrderInfo o
+    JOIN CustomerInfo c ON o.UserID = c.UserID
+    LEFT JOIN ProductInfo p ON o.OrderID = p.OrderID;
+END
+
+CREATE  PROCEDURE GetProductSalesByMonth(IN startDate DATE, IN endDate DATE)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        -- Handle the error
+        SELECT 'Error fetching product sales' AS message;  -- Error message
+        ROLLBACK;  -- Rollback any changes (if applicable)
+    END;
+
+    -- Start transaction (optional, since you are only reading data)
+    START TRANSACTION;
+
+    -- Validate input dates
+    IF startDate IS NULL OR endDate IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Start date and end date cannot be NULL.';
+    END IF;
+
+    IF startDate > endDate THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Start date must be less than or equal to end date.';
+    END IF;
+
+    -- Fetch product sales
+    SELECT 
+        p.Title AS productName, 
+        DATE_FORMAT(o.OrderDate, '%Y-%m') AS month,  -- Extract year and month
+        SUM(oi.Quantity) AS totalQuantitySold
+    FROM 
+        orderitem oi
+    JOIN 
+        variant v ON oi.VariantID = v.VariantID
+    JOIN 
+        product p ON v.ProductID = p.ProductID
+    JOIN 
+        `order` o ON oi.OrderID = o.OrderID  -- Escape the "order" table name
+    WHERE 
+        o.OrderDate BETWEEN startDate AND endDate
+    GROUP BY 
+        p.Title, month  -- Group by product and month
+    ORDER BY 
+        month, p.Title;
+
+    COMMIT;  -- Commit the transaction (not really necessary for SELECT, but good practice)
+
+END
+
