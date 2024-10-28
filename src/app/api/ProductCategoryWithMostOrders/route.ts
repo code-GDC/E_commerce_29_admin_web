@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getTopOrderedCategories } from '../../models/ProductCategoryWithMostOrders/OrderProductCatagory';  // Import the new function
+import { getTopOrderedCategories } from '../../models/ProductCategoryWithMostOrders/OrderProductCatagory';
 
 // API handler for getting the top 10 most ordered product categories
 export async function GET(req: NextRequest) {
   try {
     const data = await getTopOrderedCategories();  // Call the function to get the top ordered categories
+    console.log('Fetched data:', data); // Log fetched data
     return NextResponse.json({ connectionStatus: 'Connected', data });  // Return array of categories
   } catch (error: unknown) {
     if (error instanceof Error) {

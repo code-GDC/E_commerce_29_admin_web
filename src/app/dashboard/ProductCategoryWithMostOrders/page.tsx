@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { BarChart } from '@mui/x-charts/BarChart'; // Ensure you have this import
-import { axisClasses } from '@mui/x-charts/ChartsAxis';
 
 // Define the type for category order data
 type CategoryOrderData = {
@@ -12,23 +11,41 @@ type CategoryOrderData = {
 
 const ProductCategoryWithMostOrders = () => {
   const [data, setData] = useState<CategoryOrderData[]>([]); // Array of categories
-  const [connectionStatus, setConnectionStatus] = useState('');
+  const [connectionStatus, setConnectionStatus] = useState(''); // Connection status
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState<string | null>(null); // Error state
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch('/api/ProductCategoryWithMostOrders');
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
         const result = await response.json();
-        setData(result.data || []); // Ensure data is an array
+        console.log('Fetched data:', result); // Debugging log
+
+        // Normalize the data
+        const normalizedData = result.data[0].map((item: any) => ({
+          categoryName: item.CategoryName,
+          orderCount: item.OrderCount,
+        }));
+
+        setData(normalizedData); // Update the state with normalized data
         setConnectionStatus(result.connectionStatus || 'Connected'); // Handle the connection status
       } catch (error) {
         console.error('Error fetching data:', error);
+        setError('Failed to fetch data');
         setConnectionStatus('Disconnected');
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
+
+  console.log('State data:', data); // Debugging log
 
   // Prepare data for the BarChart
   const chartData = data.map(category => ({
@@ -55,12 +72,12 @@ const ProductCategoryWithMostOrders = () => {
   return (
     <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg">
       <h1 className="text-5xl font-bold text-center mb-4 text-gray-700">Most Ordered Product Categories</h1>
-      <div className="text-center mb-6">
-        
-      </div>
 
-      {/* Bar Chart */}
-      {data.length > 0 ? (
+      {loading ? (
+        <p className="text-center text-gray-500">Loading...</p>
+      ) : error ? (
+        <p className="text-center text-red-500">{error}</p>
+      ) : data.length > 0 ? (
         <div className="mb-6">
           <BarChart
             dataset={chartData}
@@ -71,9 +88,6 @@ const ProductCategoryWithMostOrders = () => {
       ) : (
         <p className="text-center text-gray-500">No data available</p>
       )}
-
-      {/* List of Categories */}
-      
     </div>
   );
 };
