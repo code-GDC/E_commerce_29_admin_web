@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { BarChart } from '@mui/x-charts/BarChart'; // Ensure you have this import
+import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
 
 // Define the type for category order data
 type CategoryOrderData = {
@@ -74,7 +75,9 @@ const ProductCategoryWithMostOrders = () => {
       <h1 className="text-5xl font-bold text-center mb-4 text-gray-700">Most Ordered Product Categories</h1>
 
       {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
+        <div className="flex justify-center items-center h-48">
+          <CircularProgress />
+        </div>
       ) : error ? (
         <p className="text-center text-red-500">{error}</p>
       ) : data.length > 0 ? (

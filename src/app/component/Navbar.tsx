@@ -69,6 +69,7 @@ const TopBar: React.FC<TopBarProps> = ({ adminImage }) => {
           <h1 className="text-2xl font-bold ml-3">Shopzy</h1>
         </div>
         <div className="flex items-center space-x-3">
+
           <Image
             src={adminImage}
             alt={adminName}
@@ -76,6 +77,7 @@ const TopBar: React.FC<TopBarProps> = ({ adminImage }) => {
             height={30}
             className="rounded-full shadow-md"
           />
+
           <span className="text-md font-medium">{adminName}</span>
           <button
             onClick={handleLogout}

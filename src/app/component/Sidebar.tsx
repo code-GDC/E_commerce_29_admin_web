@@ -25,8 +25,7 @@ import { ExpandLess, ExpandMore } from '@mui/icons-material';
 
 // Sidebar Component
 const Sidebar = () => {
-  const adminName = 'Admin Name'; // Replace with dynamic username if needed
-  const adminPhoto = '/path-to-admin-photo.jpg'; // Replace with the actual photo path
+ 
 
   const [openOrders, setOpenOrders] = useState(false);
   const [openCustomers, setOpenCustomers] = useState(false);
@@ -41,19 +40,8 @@ const Sidebar = () => {
   const toggleOpenSettings = () => setOpenSettings(!openSettings);
 
   return (
-    <div className="text-white p-6 shadow-lg flex flex-col bg-black justify-between h-full max-h-screen">
-      {/* Admin info section */}
-      {/* Uncomment below if you want to show admin info */}
-      {/* <div className="flex flex-col items-center mb-8">
-        <img
-          src={adminPhoto}
-          alt="Admin"
-          className="w-16 h-16 rounded-full mb-4 shadow-lg"
-        />
-        <span className="font-semibold" style={{ fontFamily: 'Poppins, sans-serif' }}>
-          {adminName}
-        </span>
-      </div> */}
+    <div className="text-white p-6 shadow-lg flex flex-col bg-black justify-between h-full max-h-full">
+      
 
       {/* Navigation Links */}
       <div className="overflow-y-auto  scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
@@ -68,34 +56,7 @@ const Sidebar = () => {
             </ListItem>
           </Link>
 
-          {/* Orders */}
-          <ListItem component="button" onClick={toggleOpenOrders} className="hover:bg-gray-700 rounded pl-2">
-            <ListItemIcon className="text-white">
-              <ShoppingCartIcon />
-            </ListItemIcon>
-            <ListItemText primary="Orders" primaryTypographyProps={{ fontSize: '1rem' }} />
-            {openOrders ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          <Collapse in={openOrders} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding className="pl-4">
-              <Link href="/orders/manage-orders" passHref>
-                <ListItem component="button" className="pl-4 hover:bg-gray-700 rounded">
-                  <ListItemIcon className="text-white">
-                    <ListAltIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Order Management" primaryTypographyProps={{ fontSize: '0.7rem' }} />
-                </ListItem>
-              </Link>
-              <Link href="/orders/status" passHref>
-                <ListItem component="button" className="pl-4 hover:bg-gray-700 rounded">
-                  <ListItemIcon className="text-white">
-                    <AssessmentIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Order Status" primaryTypographyProps={{ fontSize: '0.7rem' }} />
-                </ListItem>
-              </Link>
-            </List>
-          </Collapse>
+          
 
           {/* Customers */}
           <ListItem component="button" onClick={toggleOpenCustomers} className="hover:bg-gray-700 rounded pl-2">
@@ -107,7 +68,7 @@ const Sidebar = () => {
           </ListItem>
           <Collapse in={openCustomers} timeout="auto" unmountOnExit>
             <List component="div" disablePadding className="pl-4">
-              <Link href="/customers/list" passHref>
+              <Link href="/dashboard/CustomerList" passHref>
                 <ListItem component="button" className="pl-4 hover:bg-gray-700 rounded">
                   <ListItemIcon className="text-white">
                     <PeopleAltIcon />
@@ -115,7 +76,7 @@ const Sidebar = () => {
                   <ListItemText primary="Customer List" primaryTypographyProps={{ fontSize: '0.7rem' }} />
                 </ListItem>
               </Link>
-              <Link href="/customers/remove-user" passHref>
+              <Link href="/dashboard/remove-user" passHref>
                 <ListItem component="button" className="pl-4 hover:bg-gray-700 rounded">
                   <ListItemIcon className="text-white">
                     <RemoveCircleOutlineIcon />
@@ -123,14 +84,7 @@ const Sidebar = () => {
                   <ListItemText primary="Remove User" primaryTypographyProps={{ fontSize: '0.7rem' }} />
                 </ListItem>
               </Link>
-              <Link href="/customers/order-history" passHref>
-                <ListItem component="button" className="pl-4 hover:bg-gray-700 rounded">
-                  <ListItemIcon className="text-white">
-                    <HistoryIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Order History" primaryTypographyProps={{ fontSize: '0.7rem' }} />
-                </ListItem>
-              </Link>
+              
             </List>
           </Collapse>
 
@@ -187,34 +141,7 @@ const Sidebar = () => {
             </List>
           </Collapse>
 
-          {/* Delivery Management */}
-          <ListItem component="button" onClick={toggleOpenDelivery} className="hover:bg-gray-700 rounded pl-2">
-            <ListItemIcon className="text-white">
-              <LocalShippingIcon />
-            </ListItemIcon>
-            <ListItemText primary="Delivery Management" primaryTypographyProps={{ fontSize: '1rem' }} />
-            {openDelivery ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          <Collapse in={openDelivery} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding className="pl-4">
-              <Link href="/delivery/assign-carriers" passHref>
-                <ListItem component="button" className="pl-4 hover:bg-gray-700 rounded">
-                  <ListItemIcon className="text-white">
-                    <AddModeratorIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Assign Carriers" primaryTypographyProps={{ fontSize: '0.7rem' }} />
-                </ListItem>
-              </Link>
-              <Link href="/delivery/manage-warehouses" passHref>
-                <ListItem component="button" className="pl-4 hover:bg-gray-700 rounded">
-                  <ListItemIcon className="text-white">
-                    <WarehouseIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Manage Warehouses" primaryTypographyProps={{ fontSize: '0.7rem' }} />
-                </ListItem>
-              </Link>
-            </List>
-          </Collapse>
+          
 
           {/* Settings */}
           <ListItem component="button" onClick={toggleOpenSettings} className="hover:bg-gray-700 rounded pl-2">
@@ -226,22 +153,17 @@ const Sidebar = () => {
           </ListItem>
           <Collapse in={openSettings} timeout="auto" unmountOnExit>
             <List component="div" disablePadding className="pl-4">
+
               <Link href="../dashboard/settings/user-permissions" passHref>
+
                 <ListItem component="button" className="pl-4 hover:bg-gray-700 rounded">
                   <ListItemIcon className="text-white">
                     <AddModeratorIcon />
                   </ListItemIcon>
-                  <ListItemText primary="User Permissions" primaryTypographyProps={{ fontSize: '0.7rem' }} />
+                  <ListItemText primary="Add admin" primaryTypographyProps={{ fontSize: '0.7rem' }} />
                 </ListItem>
               </Link>
-              <Link href="/settings/system-settings" passHref>
-                <ListItem component="button" className="pl-4 hover:bg-gray-700 rounded">
-                  <ListItemIcon className="text-white">
-                    <SettingsIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="System Settings" primaryTypographyProps={{ fontSize: '0.7rem' }} />
-                </ListItem>
-              </Link>
+              
             </List>
           </Collapse>
         </List>
