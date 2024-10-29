@@ -153,7 +153,9 @@ const Sidebar = () => {
           </ListItem>
           <Collapse in={openSettings} timeout="auto" unmountOnExit>
             <List component="div" disablePadding className="pl-4">
-              <Link href="/dashboard/user-permissions" passHref>
+
+              <Link href="../dashboard/settings/user-permissions" passHref>
+
                 <ListItem component="button" className="pl-4 hover:bg-gray-700 rounded">
                   <ListItemIcon className="text-white">
                     <AddModeratorIcon />

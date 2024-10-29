@@ -34,7 +34,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/app/component/sidebar/Sidebar.jsx"
-  ],
+, "src/app/models/authAdmin.hs"  ],
   "exclude": [
     "node_modules"
   ]
