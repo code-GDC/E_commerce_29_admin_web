@@ -4,3 +4,16 @@ GET http://localhost:3000/api/getUserCount
 ### Get Total Revenue
 GET http://localhost:3000/api/getRevenue
 
+### Create Admin
+POST http://localhost:3000/api/signup
+Content-Type: application/json
+
+{
+  "AdminUserName": "admin123111",
+  "FirstName": "John",
+  "LastName": "Doe",
+  "Email": "john.doe@example.com",
+  "Password": "securepassword"
+}
+
+
