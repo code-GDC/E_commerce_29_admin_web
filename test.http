@@ -20,3 +20,16 @@ Content-Type: application/json
 GET http://localhost:3001/api/backOrders
 
 
+### Test Most Sold Products API
+
+# Request to get the most sold products within a date range
+GET http://localhost:3000/api/ProductCategoryWithMostOrders?startDate=2023-01-01&endDate=2023-12-31
+Accept: application/json
+
+### Test Most Sold Products API
+
+# Request to get the most sold products within a date range
+GET http://localhost:3000/api/ProductsWithMostNumberOfSales?startDate=2024-01-01&endDate=2024-12-31
+Accept: application/json
+
+###
