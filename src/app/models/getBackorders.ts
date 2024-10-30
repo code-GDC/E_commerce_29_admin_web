@@ -7,7 +7,7 @@ export async function getBackorders() {
   try {
     const [rows] = await pool.execute(query);
     const backorders = (rows as any[])[0];  // Extract backorders
-    console.log('Extracted backorders:', backorders);  // Log for debugging
+    console.log('Extracted backorders:', backorders);
     return backorders;
   } catch (error: any) {
     console.error('Database error:', error);

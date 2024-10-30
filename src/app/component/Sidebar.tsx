@@ -56,7 +56,27 @@ const Sidebar = () => {
             </ListItem>
           </Link>
 
-          
+          {/* Orders */}
+          <ListItem component="button" onClick={toggleOpenOrders} className="hover:bg-gray-700 rounded pl-2">
+            <ListItemIcon className="text-white">
+              <ShoppingCartIcon />
+            </ListItemIcon>
+            <ListItemText primary="Orders" primaryTypographyProps={{ fontSize: '1rem' }} />
+            {openOrders ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={openOrders} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding className="pl-4">
+              
+              <Link href="/dashboard/BackOrders" passHref>
+                <ListItem component="button" className="pl-4 hover:bg-gray-700 rounded">
+                    <ListItemIcon className="text-white">
+                    <ListAltIcon />
+                    </ListItemIcon>
+                  <ListItemText primary="Back Orders" primaryTypographyProps={{ fontSize: '0.7rem' }} />
+                </ListItem>
+              </Link>
+            </List>
+          </Collapse>
 
           {/* Customers */}
           <ListItem component="button" onClick={toggleOpenCustomers} className="hover:bg-gray-700 rounded pl-2">
@@ -87,6 +107,7 @@ const Sidebar = () => {
               
             </List>
           </Collapse>
+          
 
           {/* Reports & Analytics */}
           <ListItem component="button" onClick={toggleOpenReports} className="hover:bg-gray-700 rounded pl-2">
