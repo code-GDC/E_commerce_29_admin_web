@@ -1,25 +1,28 @@
 import pool from '../../lib/dbConfig';  // Import the connection pool
-import { RowDataPacket } from 'mysql2/promise';
+import { RowDataPacket } from 'mysql2';
 
-// Define the structure for product sales data
+// Define the expected structure of product sales data
 type ProductSalesData = {
   productName: string;
-  month: string; // Month in 'YYYY-MM' format
+  month: string;
   totalQuantitySold: number;
 };
 
-// Function to get the most sold products in a given period grouped by month
+// Function to get the product sales data by month
 export async function getProductSalesData(startDate: string, endDate: string): Promise<ProductSalesData[]> {
   const query = `
-    call GetProductsWithMostNumberOfSales(?, ?);
+    call GetProductSalesByMonth(?, ?);
   `;
 
   try {
-    const [rows] = await pool.query<RowDataPacket[]>(query, [startDate, endDate]);
-    return rows.map(row => ({
+    const [rows] = await pool.query<RowDataPacket[][]>(query, [startDate, endDate]);
+    console.log('Extracted product sales data:', rows); // Log for debugging
+
+    // Ensure the correct structure of the returned data
+    return rows[0].map(row => ({
       productName: row.productName,
       month: row.month,
-      totalQuantitySold: row.totalQuantitySold,
+      totalQuantitySold: parseInt(row.totalQuantitySold, 10), // Convert to number
     }));
   } catch (error: any) {
     console.error('Database error:', error);
