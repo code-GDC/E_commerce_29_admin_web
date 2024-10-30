@@ -101,15 +101,7 @@ const MostSoldProducts = () => {
 
       {Object.entries(productTotals).length > 0 && (
         <>
-          <ul className="mt-4 border-t border-gray-600">
-            {Object.keys(productTotals).map(productName => (
-              <li key={productName} className="py-3 border-b border-gray-600">
-                <span className="font-semibold">{productName}</span>
-              </li>
-            ))}
-          </ul>
-
-          {/* Render the LineChart */}
+          {/* Render the LineChart first */}
           <LineChart
             width={750}
             height={450}
@@ -119,6 +111,15 @@ const MostSoldProducts = () => {
             }))} // Ensure this is the correct type for LineChart
             xAxis={[{ scaleType: 'point', data: xLabels }]} // Use unique month labels for x-axis
           />
+
+          {/* Render the product list below the chart */}
+          <ul className="mt-4 border-t border-gray-600">
+            {Object.keys(productTotals).sort().map(productName => ( // Sort the product names
+              <li key={productName} className="py-3 border-b border-gray-600">
+                <span className="font-semibold">{productName}</span>
+              </li>
+            ))}
+          </ul>
         </>
       )}
     </div>

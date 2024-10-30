@@ -4,7 +4,7 @@ import pool from '../lib/dbConfig';  // Import the connection pool
 export async function getUserCount() {
   const query = `
     SELECT COUNT(*) AS userCount
-    FROM ecommerce4.user
+    FROM ecommercedb.user
   `;
 
   try {
