@@ -9,11 +9,11 @@ POST http://localhost:3000/api/signup
 Content-Type: application/json
 
 {
-  "AdminUserName": "admin123111",
-  "FirstName": "John",
-  "LastName": "Doe",
-  "Email": "john.doe@example.com",
-  "Password": "securepassword"
+  "AdminUserName": "chamindu12",
+  "FirstName": "Chamindu",
+  "LastName": "Sathsara",
+  "Email": "chamindusathsara27@gmail.com",
+  "Password": "chamindu12"
 }
 
 ####

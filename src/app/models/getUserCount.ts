@@ -2,8 +2,10 @@ import pool from '../lib/dbConfig';  // Import the connection pool
 import { RowDataPacket } from 'mysql2';  // Import RowDataPacket type
 
 // Function to get the user count
+
 export async function getUserCount(): Promise<number> {
   const query = `SELECT GetUserCount() AS userCount;`;  // Call the SQL function
+
 
   try {
     // Execute the query
