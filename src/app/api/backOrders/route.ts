@@ -1,11 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getBackorders } from '../../models/getBackorders';  // Import the getDeals function
+import { NextRequest, NextResponse } from 'next/server';
+import { getBackorders } from '../../models/getBackorders';  // Import the function
 
-// API handler for getting the total deals (order count)
+// API handler for getting the backorders
 export async function GET(req: NextRequest) {
   try {
-    const totalDeals = await getBackorders();  // Fetch total deals from the database
-    return NextResponse.json({ connectionStatus: 'Connected', totalDeals });  // Return as JSON
+    const backorders = await getBackorders();  // Fetch backorders from the database
+    console.log('Fetched backorders:', backorders);  // Add this line
+    return NextResponse.json({ connectionStatus: 'Connected', backorders });  // Return as JSON
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error('Database error:', error.message);
