@@ -74,7 +74,7 @@ const MostSoldProducts = () => {
   });
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-gray-100 text-black rounded-lg shadow-lg">
+    <div className="max-w-5xl mx-auto p-8 bg-gray-100 text-black rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold text-center mb-6">Most Sold Products</h1>
       <div className="flex flex-col sm:flex-row sm:justify-between mb-4">
         <input
@@ -103,8 +103,8 @@ const MostSoldProducts = () => {
         <>
           {/* Render the LineChart first */}
           <LineChart
-            width={750}
-            height={450}
+            width={900}
+            height={700}
             series={chartData.map((item) => ({
               label: item.label,
               data: item.data,
