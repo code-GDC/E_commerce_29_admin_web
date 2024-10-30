@@ -202,7 +202,11 @@ const DashboardPage: React.FC = () => {
                 <MonetizationOn className="text-5xl text-green-600" />
                 <div className="ml-4">
                   <h6 className="text-lg font-semibold">Total Revenue</h6>
-                  <h4 className="text-3xl font-bold">{totalRevenue !== null ? `Rs: ${totalRevenue}` : "Loading..."}</h4>
+                  <h4 className="text-3xl font-bold">
+  {totalRevenue !== null ? `Rs: ${Number(totalRevenue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Loading..."}
+</h4>
+
+
                 </div>
               </div>
             </div>
