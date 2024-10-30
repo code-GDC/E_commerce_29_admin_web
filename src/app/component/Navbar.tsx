@@ -66,12 +66,12 @@ const TopBar: React.FC<TopBarProps> = ({ adminImage }) => {
             height={30}
             className="rounded-full"
           />
-          <h1 className="text-2xl font-bold ml-3">Shopzy</h1>
+          <h1 className="text-2xl font-bold ml-3">Shopzy ADMIN</h1>
         </div>
         <div className="flex items-center space-x-3">
 
           <Image
-            src={adminImage}
+            src="/admin.jpg"
             alt={adminName}
             width={30}
             height={30}

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface Product {
   ProductID: number;
@@ -20,7 +20,7 @@ interface Order {
   PhoneNumber: string;
   ShippingAddress: string;
   EstimateDate: string | null;
-  Products: Product[]; // To store products per order
+  Products: Product[];
 }
 
 export default function CustomerOrderReport() {
@@ -51,17 +51,16 @@ export default function CustomerOrderReport() {
                 OrderDate: order.OrderDate,
                 UserID: order.UserID,
                 CustomerName: order.CustomerName,
-                OrderTotal: parseFloat(order.OrderTotal), // Ensure it's a number
+                OrderTotal: parseFloat(order.OrderTotal),
                 PaymentMethod: order.PaymentMethod,
                 DeliveryType: order.DeliveryType,
                 Email: order.Email,
                 PhoneNumber: order.PhoneNumber,
                 ShippingAddress: order.ShippingAddress,
                 EstimateDate: order.EstimateDate,
-                Products: [] // Initialize as empty array
+                Products: []
               };
             }
-            // Add the product to the Products array
             groupedOrders[order.OrderID].Products.push({
               ProductID: order.ProductID,
               ProductName: order.ProductName,
@@ -69,7 +68,6 @@ export default function CustomerOrderReport() {
             });
           });
 
-          // Convert the grouped object into an array
           setOrders(Object.values(groupedOrders));
         } else {
           const errorData = await response.json();
@@ -88,7 +86,8 @@ export default function CustomerOrderReport() {
   }, []);
 
   const handleSelectOrder = (order: Order) => {
-    setSelectedOrder(order);
+    setSelectedOrder(null); // Reset to prevent previous data from showing up
+    setTimeout(() => setSelectedOrder(order), 0); // Set new order after reset
   };
 
   return (
@@ -126,7 +125,9 @@ export default function CustomerOrderReport() {
                     <td className="px-4 py-3 border">
                       {new Date(order.OrderDate).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-3 border">Rs {order.OrderTotal.toFixed(2)}</td>
+                    <td className="px-4 py-3 border">
+                      Rs {(order.OrderTotal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
                     <td className="px-4 py-3 border">{order.UserID}</td>
                     <td className="px-4 py-3 border">{order.CustomerName}</td>
                     <td className="px-4 py-3 border">
@@ -156,8 +157,8 @@ export default function CustomerOrderReport() {
             <h3 className="text-xl font-bold mt-4 mb-4">Order Details:</h3>
             <p><strong>Order ID:</strong> {selectedOrder.OrderID}</p>
             <p><strong>Order Date:</strong> {new Date(selectedOrder.OrderDate).toLocaleDateString()}</p>
-            <p><strong>Total Price:</strong> Rs {selectedOrder.OrderTotal.toFixed(2)}</p>
-            <p><strong>Estimated Date:</strong> {selectedOrder.EstimateDate || "Not available"}</p>
+            <p><strong>Total Price:</strong> Rs {(selectedOrder.OrderTotal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p><strong>Estimated Date:</strong> {selectedOrder.EstimateDate ? new Date(selectedOrder.EstimateDate).toLocaleDateString() : "Not available"}</p>
             <p><strong>Payment Method:</strong> {selectedOrder.PaymentMethod}</p>
 
             <h3 className="text-xl font-bold mt-4 mb-4">Product Information:</h3>

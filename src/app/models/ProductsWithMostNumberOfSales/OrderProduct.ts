@@ -11,16 +11,7 @@ type ProductSalesData = {
 // Function to get the most sold products in a given period grouped by month
 export async function getProductSalesData(startDate: string, endDate: string): Promise<ProductSalesData[]> {
   const query = `
-    SELECT p.Title AS productName, 
-           DATE_FORMAT(o.OrderDate, '%Y-%m') AS month,  -- Extract year and month
-           SUM(oi.Quantity) AS totalQuantitySold
-    FROM orderitem oi
-    JOIN variant v ON oi.VariantID = v.VariantID
-    JOIN product p ON v.ProductID = p.ProductID
-    JOIN \`order\` o ON oi.OrderID = o.OrderID
-    WHERE o.OrderDate BETWEEN ? AND ?
-    GROUP BY p.Title, month  -- Group by product and month
-    ORDER BY month, p.Title;
+    call GetProductsWithMostNumberOfSales(?, ?);
   `;
 
   try {

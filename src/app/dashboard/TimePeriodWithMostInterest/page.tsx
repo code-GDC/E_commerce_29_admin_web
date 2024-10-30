@@ -1,4 +1,4 @@
-"use client"; // Mark this file as a Client Component
+"use client";
 
 import { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
@@ -10,9 +10,6 @@ import {
   Title,
   Tooltip,
   Legend,
-  ArcElement,
-  PointElement,
-  LineElement
 } from 'chart.js';
 
 // Register required components for Chart.js
@@ -22,10 +19,7 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement
+  Legend
 );
 
 export default function ProductInterestByTimePeriod() {
@@ -34,12 +28,12 @@ export default function ProductInterestByTimePeriod() {
     Title: string;
   }
 
-  const [products, setProducts] = useState<Product[]>([]); // Initialize as an empty array
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]); // Initialize as an empty array
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [interestData, setInterestData] = useState<{ labels: string[]; datasets: any[] } | null>(null);
-  const [period, setPeriod] = useState('year'); // Default period
+  const [period, setPeriod] = useState('year');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -51,8 +45,8 @@ export default function ProductInterestByTimePeriod() {
       try {
         const response = await fetch('/api/ProductTitles');
         const data = await response.json();
-        setProducts(data.products || []); // Ensure the products data is an array
-        setFilteredProducts(data.products || []); // Start with all products
+        setProducts(data.products || []);
+        setFilteredProducts(data.products || []);
       } catch (error) {
         setError("Failed to fetch product titles.");
       } finally {
@@ -84,8 +78,8 @@ export default function ProductInterestByTimePeriod() {
             datasets: [
               {
                 label: 'Product Interest',
-                backgroundColor: '#42a5f5', // Changed to the specified color
-                borderColor: '#1D4ED8', // Darker shade for border
+                backgroundColor: '#42a5f5',
+                borderColor: '#1D4ED8',
                 data: interestValues,
               }
             ],
@@ -103,28 +97,24 @@ export default function ProductInterestByTimePeriod() {
     fetchInterestData();
   }, [selectedProduct, period]);
 
-  // Handle input change in the search bar
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = event.target.value.toLowerCase();
     setSearchTerm(searchValue);
 
-    // Ensure products is an array before filtering
     if (Array.isArray(products)) {
       const filtered = products.filter((product) =>
-        product.Title.toLowerCase().includes(searchValue)
+        product.Title && product.Title.toLowerCase().includes(searchValue)
       );
       setFilteredProducts(filtered);
     }
 
-    // Show suggestions if search term is not empty
     setShowSuggestions(searchValue.length > 0);
   };
 
-  // Handle selecting a product from the suggestions
   const handleProductSelect = (productTitle: string, productId: string) => {
     setSearchTerm(productTitle);
     setSelectedProduct(productId);
-    setShowSuggestions(false); // Hide suggestions after selection
+    setShowSuggestions(false);
   };
 
   return (
@@ -132,7 +122,6 @@ export default function ProductInterestByTimePeriod() {
       <div className="bg-white rounded-lg shadow p-6 w-3/4">
         <h2 className="text-2xl font-semibold mb-4 text-gray-800 text-center">Product Interest by Time Period</h2>
 
-        {/* Search bar */}
         <div className="mb-4 relative">
           <input
             type="text"
@@ -142,8 +131,7 @@ export default function ProductInterestByTimePeriod() {
             onChange={handleSearchChange}
           />
           
-          {/* Suggestions dropdown */}
-          {showSuggestions && Array.isArray(filteredProducts) && filteredProducts.length > 0 && (
+          {showSuggestions && filteredProducts.length > 0 && (
             <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-y-auto">
               {filteredProducts.map((product) => (
                 <li
@@ -158,21 +146,19 @@ export default function ProductInterestByTimePeriod() {
           )}
         </div>
 
-       
-<div className="mb-4 h-1/2">
-  <label htmlFor="period" className="mr-2 text-gray-800">Select Time Period:</label>
-  <select
-    id="period"
-    className="px-4 py-2 rounded border border-gray-300"
-    value={period}
-    onChange={(e) => setPeriod(e.target.value)}
-  >
-    <option value="year">Year</option>
-    <option value="month">Month</option> {/* Changed from "week" to "month" */}
-  </select>
-</div>
+        <div className="mb-4 h-1/2">
+          <label htmlFor="period" className="mr-2 text-gray-800">Select Time Period:</label>
+          <select
+            id="period"
+            className="px-4 py-2 rounded border border-gray-300"
+            value={period}
+            onChange={(e) => setPeriod(e.target.value)}
+          >
+            <option value="year">Year</option>
+            <option value="month">Month</option>
+          </select>
+        </div>
 
-        {/* Chart for product interest */}
         <div className="bg-white rounded-lg shadow p-10 flex flex-col items-center justify-center">
           {loading && <p>Loading data...</p>}
           {error && <p className="text-red-500">{error}</p>}
@@ -182,16 +168,8 @@ export default function ProductInterestByTimePeriod() {
               options={{
                 responsive: true,
                 scales: {
-                  x: {
-                    grid: {
-                      display: false, // Disable grid lines on the x-axis
-                    },
-                  },
-                  y: {
-                    grid: {
-                      display: false, // Disable grid lines on the y-axis
-                    },
-                  },
+                  x: { grid: { display: false } },
+                  y: { grid: { display: false } },
                 },
               }} 
               width={600} 

@@ -28,7 +28,7 @@ export default function RemoveCustomer() {
         setError(data.error);
       }
     } catch (error) {
-      setError("Failed to unregister customer.");
+      setError("Failed to delete customer.");
     } finally {
       setLoading(false);
     }

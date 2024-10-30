@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
   try {
     await unregisterCustomer(Number(userId));  // Call the function to unregister the customer
-    return NextResponse.json({ message: 'Customer unregistered successfully' });
+    return NextResponse.json({ message: 'Customer deleted successfully' });
   } catch (error: any) {
     console.error('Database error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
