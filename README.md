@@ -10,6 +10,9 @@ Welcome to the **Admin Dashboard** for **Shopzy’s E-Commerce Platform**! This 
 The e-commerce platform was developed to strengthen Shopzy's online reach by managing a select catalog of consumer electronics and toys. The Admin Dashboard provides a seamless UI to manage inventory, process orders, and visualize key analytics.
 
 ---
+## 🎨 Screenshots
+
+![image](https://github.com/user-attachments/assets/2aade1ec-59f9-475d-a1a9-e4557db5e712)
 
 ## 🚀 Key Features
 
@@ -83,9 +86,7 @@ The Admin Dashboard includes:
 
 ---
 
-## 🎨 Screenshots
 
-![image](https://github.com/user-attachments/assets/2aade1ec-59f9-475d-a1a9-e4557db5e712)
 
 
 
