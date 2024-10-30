@@ -108,15 +108,24 @@ const MostSoldProducts = () => {
             series={chartData.map((item) => ({
               label: item.label,
               data: item.data,
-            }))} // Ensure this is the correct type for LineChart
-            xAxis={[{ scaleType: 'point', data: xLabels }]} // Use unique month labels for x-axis
+            }))}
+            xAxis={[{ scaleType: 'point', data: xLabels }]}
           />
 
           {/* Render the product list below the chart */}
           <ul className="mt-4 border-t border-gray-600">
-            {Object.keys(productTotals).sort().map(productName => ( // Sort the product names
+            {Object.keys(productTotals).sort().map(productName => (
               <li key={productName} className="py-3 border-b border-gray-600">
-                <span className="font-semibold">{productName}</span>
+                <span className="font-semibold">{productName}</span> - Total Sold: {productTotals[productName]}
+                <ul className="ml-4 mt-1 text-sm text-gray-700">
+                  {products
+                    .filter(product => product.productName === productName)
+                    .map(product => (
+                      <li key={`${product.productName}-${product.month}`}>
+                        {product.month}: {product.totalQuantitySold} units
+                      </li>
+                    ))}
+                </ul>
               </li>
             ))}
           </ul>

@@ -9,8 +9,8 @@ export async function getSalesInterest(productId: string | null, period: string 
     groupByClause = 'YEAR(o.OrderDate)';
     selectClause = 'YEAR(o.OrderDate) AS timePeriod';
   } else if (period === 'month') {
-    groupByClause = 'YEAR(o.OrderDate), MONTH(o.OrderDate)';
-    selectClause = "DATE_FORMAT(o.OrderDate, '%Y-%m') AS timePeriod";  // Combines year and month
+    groupByClause = "DATE_FORMAT(o.OrderDate, '%Y-%m')";  // Use formatted date for grouping
+    selectClause = "DATE_FORMAT(o.OrderDate, '%Y-%m') AS timePeriod";  // Use formatted date for selection
   }
 
   const query = `

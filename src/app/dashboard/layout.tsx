@@ -14,7 +14,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                 <div className="flex-1 flex flex-col">
                     {/* Navbar */}
                     <header className="w-full">
-                        <Navbar adminName={''} adminImage={''} />
+                        <Navbar  adminImage={''} />
                     </header>
 
                     {/* Main content area */}
@@ -26,7 +26,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
             {/* Footer */}
             <footer className="bg-gray-500 text-center py-4 w-full">
-                <p>&copy; UOM CSE 22 GRP-29 E-commerce Admin</p>
+                <p>&copy; UOM CSE 22 GRP-29 Shopzy Admin</p>
             </footer>
         </div>
     );
